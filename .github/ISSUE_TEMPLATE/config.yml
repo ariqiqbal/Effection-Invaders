@@ -20,3 +20,8 @@ issue_templates:
     title: "[General]: "
     labels: ["general"]
     body: "./ISSUE_TEMPLATE/general_report.md"
+  - name: "Announcement"
+    description: "Team announcement, such as a weekly meeting."
+    title: "[Announcement]: "
+    labels: ["announcement"]
+    body: "./ISSUE_TEMPLATE/announcement.md"
