@@ -59,19 +59,27 @@ Bad: `fix stuff`, `VFX-43`, `update`
 
 
 ## Reviews
-Tag every comment with a priority so the author knows what is required:
+Reviewing process is the most crucial yet the longest process in our project. A slow reviewing process may stall other task from completing. 
+Therefore, please keep in mind:
+Reviewer: give a first response within 24 hours. If you can't, say so and suggest someone else.
+Author: if a PR has had no review after 24 hours, pings the reviewer once, then the team channel.
+
+Inside a review comment, always tag every comment with a priority so the author knows what's required:
 
 | Tag | Meaning | Reviewer action |
 |---|---|---|
-| **P1** | Must fix — breaks behaviour or violates a rule | Request changes |
-| **P2** | Should fix — strong recommendation | Request changes |
-| **P3** | Consider — fix now or leave a follow-up note | Comment |
-| **P4** | Optional | Approve |
-| **P5** | Nit / opinion | Approve |
+| **P1** | Must fix: breaks behaviour or violates a rule | Request changes |
+| **P2** | Should fix: strong recommendation | Request changes |
+| **P3** | Consider: fix now or leave a follow-up issue | Comment |
+| **P4** | Optional / nit / opinion | Approve |
 
-Review focus, in order: (1) does it work, (2) does it touch shared files more than needed, (3) consistency with existing code, (4) naming.
+These focus might ease the reviewing process. In order: 
+(1) does it work, 
+(2) does it touch shared files more than needed, 
+(3) is it consistent with existing code, 
+(4) naming conventions
 
-Approval must say **what you checked** in one line. "LGTM" alone is not a review.
+!!! An approval must say **what you checked** in one line. "LGTM" on its own is not a review. !!!
 
 ## Shared files — extra care
 `engine/DrawManager.java`, `engine/Core.java`, `screen/GameScreen.java` are used by every team.
