@@ -24,8 +24,8 @@ Eg:
 feat/VFX-43_jira-setup
 fix/VFX-57_coin-drop-overlap
 ```
-
 !!! Keep branches short-lived. If a branch is older than a week, split it or merge what's done. !!!
+
 
 ## Commits
 - Format: `<type>: <subject>` — see `.gitmessage.txt`. Enable it: `git config commit.template .gitmessage.txt`
