@@ -22,16 +22,21 @@ Branch Types:
 Eg:
 ```
 feat/VFX-43_jira-setup
-fix/VFX-57_coin-drop-overlap
+fix/VFX-38_jode-rules
 ```
 !!! Keep branches short-lived. If a branch is older than a week, split it or merge what's done. !!!
 
 
 ## Commits
-- Format: `<type>: <subject>` — see `.gitmessage.txt`. Enable it: `git config commit.template .gitmessage.txt`
-- Types: `feat` `fix` `refactor` `docs` `test` `ci` `chore` `style`
-- Subject ≤ 50 chars, imperative ("add", not "added"), English.
-- Small commits. If you need "and" in the subject, split it.
+Any Work-in-progress commits can be written however you like.
+However, please do remember **The last commit before you push** starts with its type: `<type>: <commit title> [VFX-n]`. Thusly:
+```
+test: Added JUnit Setup [VFX-43]
+feat: Established rules in CONTRIBUTING [VFX-38]
+```
+We strongly suggest all commits to start imperatively in past tense verb. ("Add" not "Added").
+!!! If any changes are made after the last commit is written, just -ammend the new changes in before pushing !!!
+
 
 ## Pull requests
 - One feature per PR. Target ~400 changed lines or less.
