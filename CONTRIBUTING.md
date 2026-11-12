@@ -1,9 +1,31 @@
 # Contributing
+This file establish all the rules every one must follow before starting any contribution into our project. A quick 2 min read should satisfy all the necessary informations to start contributing. 
+
 
 ## Branches
-- `main` — protected. No direct push. Changes arrive only through PRs.
-- `<team>/<feature>` — one branch per feature. Lowercase, hyphens. Delete after merge.
-  - `hello-world/settings-screen`, `gog/coin-drop`
+Our `main` branch is always protected. No direct pushes are allowed and any changes must arrive only through PRs.
+
+Format: `<type>/VFX-<n>_<title>`. One branch per Jira task. Always delete after merge to trim dead branches.
+- `<type>`: one of the types listed below.
+- `VFX-<n>`: the Jira task this branch belongs to.
+- `<title>`: a short, meaningful title in lowercase & multiple words with spaces are joined with hyphens (-).
+
+Branch Types:
+| Type | Purpose |
+|---|---|
+| **feat** | New features or improvements |
+| **fix** | Code improvements without behaviour changes |
+| **test** | Unit tests and test setup |
+| **docs** | Documentation changes |
+| **ci** | GitHub Actions and CI changes |
+
+Eg:
+```
+feat/VFX-43_jira-setup
+fix/VFX-57_coin-drop-overlap
+```
+
+!!! Keep branches short-lived. If a branch is older than a week, split it or merge what's done. !!!
 
 ## Commits
 - Format: `<type>: <subject>` — see `.gitmessage.txt`. Enable it: `git config commit.template .gitmessage.txt`
