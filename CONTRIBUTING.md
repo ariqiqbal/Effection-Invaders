@@ -28,8 +28,8 @@ fix/VFX-38_jode-rules
 
 
 ## Commits
-Any Work-in-progress commits can be written however you like.
-However, please do remember **The last commit before you push** starts with its type: `<type>: <commit title> [VFX-n]`. Thusly:
+Any Work-in-progress commits can be written however you like (Squash merge cleans up the history anyway, but keeps the last commit).
+However, please do remember **The last commit before you push** starts with its type: `<type>: <commit title> [VFX-<n>]`. Thusly:
 ```
 test: Added JUnit Setup [VFX-43]
 feat: Established rules in CONTRIBUTING [VFX-38]
@@ -39,13 +39,24 @@ We strongly suggest all commits to start imperatively in past tense verb. ("Add"
 
 
 ## Pull requests
-- One feature per PR. Target ~400 changed lines or less.
-- Fill the template. Screenshots for anything visible.
-- Base branch: **your team fork `main`** for daily work. Upstream only when a requirement is complete and after the leaders' channel has been told.
-- Rebase/merge latest `main` before requesting review. PRs with conflicts are not reviewed.
-- Request **1–2 reviewers**, not everyone.
-- Merge method: **Squash and merge**. Delete the branch.
-- **Upstream PRs:** title `type(requirement): subject` (e.g. `feat(main-menu): ...`) so the shared PR list shows which team it is. If it depends on another team's PR, put `Depends on: #N` on the first line of the body.
+All of our coding efforts in this project are based on one Jira task and are done through PRs. Therefore all these considerations are important for the success of our project:
+
+- Try to aim for about 400 changed lines or fewer, with reduced Code Complexity (CC) if possible. 
+- Remember to always rebase on or merge the latest `main` before requesting review. PRs with conflicts will not be reviewed.
+- A good PR Title, let anyone on the team understand what the whole PR does from the title alone, even without opening it. Eg:
+```
+Good: `Add Jira webhook so merged PRs move tasks to Done [VFX-66]`
+Bad: `fix stuff`, `VFX-43`, `update`
+```
+- Put the Jira task in the title and in the body of the PR: `<type>: <PR Title [VFX-<n>]`.
+- Fill in the PRs template already establish. Add screenshots for anything visible.
+- Once review preview process has started, push new commits instead of force-pushing, so reviewers can see what changed.
+- Always and always request **1–2 reviewers**, to speed up the reviewing process.
+- The author or The Reviewer will merge once the PR is approved and CI is green.
+- Suggested merge method: **Squash and merge**. and do not forget to delete the branch.
+- If it depends on another PR, put `Depends on: #N` on the first line of the body.
+
+
 
 ## Reviews
 Tag every comment with a priority so the author knows what is required:
