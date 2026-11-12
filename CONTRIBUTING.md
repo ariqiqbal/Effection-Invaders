@@ -81,12 +81,10 @@ These focus might ease the reviewing process. In order:
 
 !!! An approval must say **what you checked** in one line. "LGTM" on its own is not a review. !!!
 
-## Shared files — extra care
-`engine/DrawManager.java`, `engine/Core.java`, `screen/GameScreen.java` are used by every team.
-Any change there must be mentioned in the PR description and reviewed by the team that owns the file (menu framework: Hello World).
 
 ## Definition of Done
 - Code compiles (CI green) and the game runs
 - Reviewed and approved
 - Screen reachable from the menu and exits with ESC (for screen work)
 - Docs/wiki updated if behaviour changed
+- Jira task moved to Done
