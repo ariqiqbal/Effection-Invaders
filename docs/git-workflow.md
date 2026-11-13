@@ -188,17 +188,17 @@ Use the appropriate sprint number when creating later tags.
 
 ## 6.0 Team Agreement
 
-This workflow was presented at the team meeting on `2026-11-13`. Each member confirms by approving the pull request that adds this file, and by ticking below.
+This workflow was presented to the team and agreed in the team group chat on 2026-11-13.
 
 | Member | Role | Agreed |
 |---|---|---|
-| Elisya | PM | [x] |
-| Alya | Scrum/Jira Master | [x] |
-| Nursofia | Risk Analyst / Dev | [x] |
-| Najihah | Estimation Lead / Dev | [x] |
-| Ariq | Git Master | [x] |
-| Khairul Suffie | Quality Lead | [x] |
-| Dian Melissa | Quality Tester | [x] |
-| Maisarah | Report Lead | [x] |
+| Elisya | PM | [✅] |
+| Alya | Scrum/Jira Master | [✅] |
+| Nursofia | Risk Analyst / Dev | [✅] |
+| Najihah | Estimation Lead / Dev | [✅] |
+| Ariq | Git Master | [✅] |
+| Khairul Suffie | Quality Lead | [✅] |
+| Dian Melissa | Quality Tester | [✅] |
+| Maisarah | Report Lead | [✅] |
 
 Changes to this workflow: open a pull request that changes this file, approved by the Git Master and the PM.
