@@ -5,11 +5,11 @@ This file establish all the rules every one must follow before starting any cont
 ## Branches
 Our `main` branch is always protected. No direct pushes are allowed and any changes must arrive only through PRs.
 
-Format: `<type>/VFX-<n>_<title>`. One branch per Jira task. Always delete after merge to trim dead branches.
+Format: `<type>/VFX-<n>_<title>`. Always delete after merge to trim dead branches.
 ```
-`<type>`: one of the types listed below.
-`VFX-<n>`: the Jira task this branch belongs to.
-`<title>`: a short, meaningful title in lowercase & multiple words with spaces are joined with hyphens (-).
+<type>: one of the types listed below.
+VFX-<n>: the Jira task this branch belongs to.
+<title>: a short, meaningful title in lowercase & multiple words with spaces are joined with hyphens (-).
 ```
 
 Branch Types:
@@ -24,21 +24,21 @@ Branch Types:
 
 Eg:
 ```
-feat/VFX-43_jira-setup
-fix/VFX-38_code-rules
+test/VFX-43_junit-setup
+docs/VFX-38_code-rules
 ```
-!!! Keep branches short-lived. If a branch is older than a week, split it or merge what's done. !!!
+!!! Keep branches short-lived (1–3 days). If a branch gets older, split it or merge what's done. !!!
 
 
 ## Commits
-Any Work-in-progress commits can be written however you like (Squash merge cleans up the history anyway, but keeps the last commit).
-However, please do remember **The last commit before you push** starts with its type: `<type>: <commit title> [VFX-<n>]`. Thusly:
+We use merge commits, so every commit stays in `main`. Before requesting review, clean up your own WIP commits (`git rebase -i` / `--autosquash`) so every commit is meaningful.
+Every commit starts with its type: `<type>(<scope>): <subject>`. The Jira key goes in the PR title, not in commits. Thusly:
 ```
-test: Added JUnit Setup [VFX-43]
-feat: Established rules in CONTRIBUTING [VFX-38]
+test(engine): Add JUnit setup
+docs(contributing): Add PR and review rules
 ```
-We strongly suggest all commits to start imperatively in past tense verb. ("Added" not "Add").
-!!! If any changes are made after the last commit is written, just --ammend the new changes in before pushing !!!
+We strongly suggest all commits start with an imperative verb ("Add" not "Added").
+!!! If any changes are made after the last commit is written, use `--amend` only before the first push. After that, it needs a force push, so add a new commit instead. !!!
 
 
 ## Pull requests
@@ -46,18 +46,19 @@ All of our coding efforts in this project are based on one Jira task and are don
 
 - Try to aim for about 400 changed lines or fewer, with reduced Code Complexity (CC) if possible. 
 - Remember to always rebase on or merge the latest `main` before requesting review. PRs with conflicts will not be reviewed.
-- A good PR Title, let anyone on the team understand what the whole PR does from the title alone, even without opening it. This format: `<type>: <PR Title> [VFX-<n>]` is a good suggestion from us. Eg:
+- A good PR Title lets anyone on the team understand what the whole PR does from the title alone, even without opening it. This format: `<type>: <PR Title> [VFX-<n>]` is a good suggestion from us. Eg:
 ```
 Good: `fix: Add Jira webhook so merged PRs move tasks to Done [VFX-66]`
 Bad: `fix stuff`, `VFX-43`, `update`
 ```
 - Put the Jira task in the title and in the body of the PR. 
-- Fill in the PRs template already establish. Add screenshots for anything visible.
+- Fill in the PR template. Add screenshots for anything visible.
 - Once review preview process has started, push new commits instead of force-pushing, so reviewers can see what changed.
 - Always and always request **1–2 reviewers**, to speed up the reviewing process.
 - The author or The Reviewer will merge once the PR is approved and CI is green.
-- Suggested merge method: **Squash and merge**. and do not forget to delete the branch.
+- Merge method: **Create a merge commit** (the only method our ruleset allows), and do not forget to delete the branch.
 - If it depends on another PR, put `Depends on: #N` on the first line of the body.
+- Changes to shared files (`GameScreen`, `Core`, `DrawManager`) must be mentioned in the PR body.
 
 
 
