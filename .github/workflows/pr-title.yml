@@ -1,31 +1,90 @@
-name: PR title
+name: PR naming
 
-# Checks that a pull request title follows our commit format, because the
-# title becomes the squash commit on main. See CONTRIBUTING.md.
-#   format:  type: subject   or   type(scope): subject
-#   types:   feat fix docs refactor test ci chore style
-# A wrong format fails the check. A title over 50 characters only warns.
-# Runs only in our fork, so other teams' upstream PRs are not checked.
+# Checks the naming conventions of every pull request (WBS 2.1.2, VFX-37).
+# Rules: docs/git-workflow.md, sections 2.0 and 3.0.
+#
+#   title    <type>: <subject> [VFX-n]        or <type>(<scope>): <subject> [VFX-n]
+#   branch   <type>/VFX-<n>_<description>     key, underscore, lowercase words joined with hyphens
+#   commits  <type>(<scope>): <description>   scope optional; merge commits skipped
+#
+#   types:   feat fix docs refactor perf test ci style chore revert
+#
+# Fixing a failure:
+#   title    edit the PR title on GitHub (the check runs again by itself)
+#   branch   rename the branch on GitHub: Branches -> pencil icon
+#   commits  git rebase -i, reword the commit, git push --force-with-lease
+#            (before review starts)
+#
+# Dependabot PRs are skipped; GitHub counts a skipped check as passed.
 
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
 
+# Least privilege: these jobs only read the PR and its commits.
+permissions:
+  contents: read
+
+env:
+  TYPES: feat|fix|docs|refactor|perf|test|ci|style|chore|revert
+
 jobs:
   title:
-    if: github.repository == 'eoieiie/Invaders-SDP-23621'
+    if: github.repository == 'ariqiqbal/Effection-Invaders' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Check title
+      - name: Check PR title
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
-          pattern='^(feat|fix|docs|refactor|test|ci|chore|style)(\([a-z0-9-]+\))?: [^ ](.*[^.])?$'
+          pattern="^($TYPES)(\([a-z0-9-]+\))?: [^ ].* \[VFX-[0-9]+\]$"
           if [[ ! "$TITLE" =~ $pattern ]]; then
-            echo "::error title=PR title format::Expected 'type: subject' (types: feat fix docs refactor test ci chore style), no full stop at the end. Got: $TITLE"
+            echo "::error title=PR title::Expected '<type>: <subject> [VFX-n]', e.g. 'feat: add enemy explosion effect [VFX-21]'. Got: $TITLE"
             exit 1
           fi
-          if (( ${#TITLE} > 50 )); then
-            echo "::warning title=PR title length::${#TITLE} characters. Try to keep it under 50, since it becomes the commit title on main."
+          if (( ${#TITLE} > 72 )); then
+            echo "::warning title=PR title length::${#TITLE} characters. Try to keep it under 72."
           fi
           echo "OK: $TITLE"
+
+  branch:
+    if: github.repository == 'ariqiqbal/Effection-Invaders' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          pattern="^($TYPES)/VFX-[0-9]+_[a-z0-9]+(-[a-z0-9]+)*$"
+          if [[ ! "$BRANCH" =~ $pattern ]]; then
+            echo "::error title=Branch name::Expected '<type>/VFX-<n>_<description>' (underscore after the key, then lowercase words with hyphens), e.g. 'feat/VFX-21_enemy-explosion'. Got: $BRANCH"
+            exit 1
+          fi
+          echo "OK: $BRANCH"
+
+  commits:
+    if: github.repository == 'ariqiqbal/Effection-Invaders' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pattern="^($TYPES)(\([a-z0-9-]+\))?: [^ ].*$"
+          bad=0
+          while IFS= read -r line; do
+            sha=${line%% *}
+            subject=${line#* }
+            if [[ "$subject" =~ $pattern || "$subject" =~ ^Revert\ \" ]]; then
+              echo "OK   ${sha:0:7} $subject"
+            else
+              echo "::error title=Commit message::${sha:0:7} '$subject' -> expected '<type>(<scope>): <description>', e.g. 'feat(explosion): add enemy explosion effect'"
+              bad=1
+            fi
+          done < <(git log --no-merges --reverse --format='%H %s' "$BASE..$HEAD")
+          exit $bad

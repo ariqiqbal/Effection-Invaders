@@ -20,14 +20,14 @@ We use GitHub Flow: one long-lived branch (`main`) and one short-lived branch fo
 | Branch | Purpose |
 |---|---|
 | `main` | Protected integration branch containing stable, playable code |
-| `feat/<JIRA-KEY>-<description>` | New features or improvements |
-| `fix/<JIRA-KEY>-<description>` | Bug fixes |
-| `refactor/<JIRA-KEY>-<description>` | Code improvements without behaviour changes |
-| `test/<JIRA-KEY>-<description>` | Unit tests and test setup |
-| `docs/<JIRA-KEY>-<description>` | Documentation changes |
-| `ci/<JIRA-KEY>-<description>` | GitHub Actions and CI changes |
+| `feat/<JIRA-KEY>_<description>` | New features or improvements |
+| `fix/<JIRA-KEY>_<description>` | Bug fixes |
+| `refactor/<JIRA-KEY>_<description>` | Code improvements without behaviour changes |
+| `test/<JIRA-KEY>_<description>` | Unit tests and test setup |
+| `docs/<JIRA-KEY>_<description>` | Documentation changes |
+| `ci/<JIRA-KEY>_<description>` | GitHub Actions and CI changes |
 
-Note: The Jira key (e.g. `VFX-7`) links the branch to its Jira task. Use lowercase words separated by hyphens for the description.
+Note: The Jira key (e.g. `VFX-7`) links the branch to its Jira task. Put an underscore (`_`) between the Jira key and the description, and use lowercase words separated by hyphens for the description (e.g. `feat/VFX-66_add-enemy-wave-spawner`).
 
 ### 2.1 Branch Rules
 
@@ -115,7 +115,7 @@ git diff
    ```bash
    git switch main
    git pull
-   git switch -c feat/VFX-21-enemy-explosion
+   git switch -c feat/VFX-21_enemy-explosion
    ```
 3. Make changes and commit them in small, logical steps:
    ```bash
@@ -138,7 +138,7 @@ git diff
 6. Push the branch:
    ```bash
    # First push
-   git push -u origin feat/VFX-21-enemy-explosion
+   git push -u origin feat/VFX-21_enemy-explosion
 
    # After rebasing a branch that has already been pushed
    git push --force-with-lease
@@ -155,7 +155,7 @@ git diff
     ```bash
     git switch main
     git pull
-    git branch -d feat/VFX-21-enemy-explosion
+    git branch -d feat/VFX-21_enemy-explosion
     git fetch --prune
     ```
 

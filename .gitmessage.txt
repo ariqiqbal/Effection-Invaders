@@ -1,26 +1,31 @@
-# <type>: <subject>            (50 chars max, imperative, no period)
+# <type>(<scope>): <description>    (imperative "add", not "added"; no period; ~50 chars)
 #
-# <body>                       (why, not what — wrap at 72)
+# <body>                            (optional: why, not what; wrap at 72)
 #
-# <footer>                     Closes #<issue>  |  Refs #<issue>
+# Refs: VFX-<n>                     (optional: Jira key)
 #
 # ---------------------------------------------------------------
 # type
-#   feat      new feature or behaviour change
+#   feat      new feature
 #   fix       bug fix
-#   refactor  code change that neither fixes a bug nor adds a feature
 #   docs      documentation only
-#   test      tests only
-#   ci        CI / GitHub Actions
-#   chore     build, tooling, .gitignore, dependencies
-#   style     formatting only (no logic change)
+#   refactor  code restructuring without behaviour change
+#   perf      performance improvement
+#   test      add or update tests
+#   ci        GitHub Actions / CI
+#   style     formatting only
+#   chore     maintenance (.gitignore, tooling)
+#   revert    revert a previous commit
 #
-# example
-#   feat: add settings screen reachable from main menu
+# scope (optional, lowercase)
+#   particles  explosion  trail  events  game  test  quality
 #
-#   Adds SettingsScreen with volume placeholders. Sound team will
-#   wire the real toggles once their API lands.
+# examples
+#   feat(explosion): add enemy explosion effect
+#   fix(particles): fix particle cleanup
+#   refactor(game): split GameScreen.update into smaller methods
+#   ci: add complexity job
 #
-#   Closes #7
+# Rules: docs/git-workflow.md, section 3.0
 # ---------------------------------------------------------------
 # Enable once per clone:  git config commit.template .gitmessage.txt
