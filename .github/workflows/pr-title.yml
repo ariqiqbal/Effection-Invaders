@@ -4,7 +4,7 @@ name: PR naming
 # Rules: docs/git-workflow.md, sections 2.0 and 3.0.
 #
 #   title    <type>: <subject> [VFX-n]        or <type>(<scope>): <subject> [VFX-n]
-#   branch   <type>/VFX-<n>-<description>     lowercase words joined with hyphens
+#   branch   <type>/VFX-<n>_<description>     key, underscore, lowercase words joined with hyphens
 #   commits  <type>(<scope>): <description>   scope optional; merge commits skipped
 #
 #   types:   feat fix docs refactor perf test ci style chore revert
@@ -55,9 +55,9 @@ jobs:
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          pattern="^($TYPES)/VFX-[0-9]+-[a-z0-9]+(-[a-z0-9]+)*$"
+          pattern="^($TYPES)/VFX-[0-9]+_[a-z0-9]+(-[a-z0-9]+)*$"
           if [[ ! "$BRANCH" =~ $pattern ]]; then
-            echo "::error title=Branch name::Expected '<type>/VFX-<n>-<description>' (lowercase, hyphens), e.g. 'feat/VFX-21-enemy-explosion'. Got: $BRANCH"
+            echo "::error title=Branch name::Expected '<type>/VFX-<n>_<description>' (underscore after the key, then lowercase words with hyphens), e.g. 'feat/VFX-21_enemy-explosion'. Got: $BRANCH"
             exit 1
           fi
           echo "OK: $BRANCH"
