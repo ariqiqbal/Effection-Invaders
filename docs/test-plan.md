@@ -93,6 +93,7 @@ Every failure gets a Jira Bug with a description and steps to reproduce.
 
 | Date | Tester | Commit ID | Result | Notes |
 |---|---|---|---|---|
+| | | | | |
 | 2026-11-14 | Dian | 926dda5 | 10/12 features passed, 2 failed | All 4 known bugs reproduced (3.1.1–3.1.4), see tables below |
 
 ### Regression run 1 – detailed results (2026-11-14, commit 926dda5)
