@@ -204,3 +204,5 @@ diamonds.tmp
 /equipment.tmp
 
 /lib/
+# Generated test and coverage reports (scripts/test.sh)
+/reports/
