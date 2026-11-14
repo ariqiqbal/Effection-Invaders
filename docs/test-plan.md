@@ -73,17 +73,17 @@ Copy this template for every new test case (automated or manual).
 
 Run on the latest `main` before refactoring and before each release.
 
-- Title menu and ESC
-- Levels 1–4
-- Boss levels 5 and 10
-- Pause / resume / restart / quit
-- Game over and score saving
-- Shop: coins and diamonds
-- Customization
-- Items using keys 1–4
-- Achievements
-- High scores still saved after closing the game
-- No unexpected exceptions in the console
+- [ ] Title menu and ESC
+- [ ] Levels 1–4
+- [ ] Boss levels 5 and 10
+- [ ] Pause / resume / restart / quit
+- [ ] Game over and score saving
+- [ ] Shop: coins and diamonds
+- [ ] Customization
+- [ ] Items using keys 1–4
+- [ ] Achievements
+- [ ] High scores still saved after closing the game
+- [ ] No unexpected exceptions in the console
 
 Every failure gets a Jira Bug with a description and steps to reproduce.
 
