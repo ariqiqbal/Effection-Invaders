@@ -1,13 +1,8 @@
 # Test Plan – Effection Invaders
-
 WBS 2.3.3 – Prepare and execute test cases · Jira: VFX-43 · Owner: Dian (Quality Tester)
-
 This plan describes **what** we test, **which tool or method** we use, **when** testing happens, and **how** test cases are recorded.
-
 ---
-
 ## 1. Testing overview
-
 | Test type | Tool / method | What it checks | When | Owner |
 |---|---|---|---|---|
 | Unit testing | JUnit 4 (`bash scripts/test.sh`) | Game logic in isolation (e.g. `Score`, `GameEvents`, `Cooldown`) | Every PR (CI) and locally before pushing | Dian / PR author |
@@ -15,13 +10,9 @@ This plan describes **what** we test, **which tool or method** we use, **when** 
 | Smoke testing | CI starts the game on a virtual display | The game launches and reaches the title screen without exceptions | Every PR (CI) | Ariq |
 | Static analysis | CodeQL, PMD | Security issues (CodeQL) and cyclomatic complexity (PMD) | Every PR (CI) | Ariq / Sufi |
 | Manual regression testing | Play-through checklist (section 5) | Existing features still work after changes | Before refactoring, after major merges, before release | Dian |
-
 A PR can be merged only when all CI checks are green and a reviewer approves.
-
 ---
-
 ## 2. Test-writing rules
-
 1. **Location:** store tests in `test/`, mirroring the source packages.
    `src/engine/Score.java` → `test/engine/ScoreTest.java`
 2. **Naming:** test classes end with `Test`. Test methods describe the behaviour, e.g. `higherScoreComesFirst()`.
@@ -30,13 +21,9 @@ A PR can be merged only when all CI checks are green and a reviewer approves.
 5. **Keep tests independent.** Clean up shared/static state in `@After` (e.g. unsubscribe from `GameEvents`).
 6. **Bug fixes start with a test.** Before fixing a bug, write a test that reproduces it (it fails), then fix the code (it passes). This test stays as a regression test.
 7. **Run before pushing:** `bash scripts/test.sh` must print `OK (N tests)`.
-
 ---
-
 ## 3. Test case template
-
 Copy this template for every new test case (automated or manual).
-
 | Field | Description |
 |---|---|
 | **ID** | TC-XXX |
@@ -49,11 +36,8 @@ Copy this template for every new test case (automated or manual).
 | **Actual result** | What actually happened |
 | **Status** | Pass / Fail |
 | **Notes** | Screenshots, logs, suspected cause, related PR |
-
 ---
-
 ## 4. Example test case – Bug 3.1.3
-
 | Field | Description |
 |---|---|
 | **ID** | TC-001 |
@@ -66,13 +50,9 @@ Copy this template for every new test case (automated or manual).
 | **Actual result** | The final score is 100 lower than expected (e.g. 200). |
 | **Status** | Fail |
 | **Notes** | Likely cause: `GameScreen.run()` adds a life bonus with `this.score += LIFE_SCORE * (this.lives - 1);`. On game over `lives` is 0, so this adds `100 * (0 - 1) = -100`. Fix idea: only add the bonus when `lives > 0`. Per rule 6, add a unit test for the bonus calculation before fixing. |
-
 ---
-
 ## 5. Manual regression checklist
-
 Run on the latest `main` before refactoring and before each release.
-
 - [ ] Title menu and ESC
 - [ ] Levels 1–4
 - [ ] Boss levels 5 and 10
@@ -84,20 +64,14 @@ Run on the latest `main` before refactoring and before each release.
 - [ ] Achievements
 - [ ] High scores still saved after closing the game
 - [ ] No unexpected exceptions in the console
-
 Every failure gets a Jira Bug with a description and steps to reproduce.
-
 ---
-
 ## 6. Regression log
-
 | Date | Tester | Commit ID | Result | Notes |
 |---|---|---|---|---|
 | | | | | |
 | 2026-11-14 | Dian | 926dda5 | 10/12 features passed, 2 failed | All 4 known bugs reproduced (3.1.1–3.1.4), see tables below |
-
 ### Regression run 1 – detailed results (2026-11-14, commit 926dda5)
-
 | # | Feature | Result | Notes |
 |---|---|---|---|
 | 1 | Title menu and ESC | Pass | Ship select, shop, high scores, settings and achievements screens open and return to the title screen |
