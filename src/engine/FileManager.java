@@ -449,92 +449,23 @@ public final class FileManager {
 		return joinedIds.toString();
 	}
 
-	/**
-	 * Shared implementation of loadCoins() and loadDiamonds(). Never throws:
-	 * a missing or corrupt file just means starting from zero, so the game
-	 * keeps running.
-	 *
-	 * @param fileName
-	 *            Name of the save file, next to the running jar.
-	 * @param label
-	 *            Short currency label, used only for log messages.
-	 * @return Saved balance, never negative.
-	 */
-	private int loadBalance(final String fileName, final String label) {
-		BufferedReader bufferedReader = null;
+		private int loadBalance(final String currency) {
+		String value = loadSection("currency").getProperty(currency);
+		if (value == null)
+			return 0;
 		try {
-			File balanceFile = getSaveFile(fileName);
-			if (!balanceFile.exists()) {
-				logger.info("No " + label + " balance saved yet, starting from 0.");
-				return 0;
-			}
-			bufferedReader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(balanceFile), Charset.forName("UTF-8")));
-			String line = bufferedReader.readLine();
-			int balance = line == null ? 0 : Integer.parseInt(line.trim());
-			logger.info("Loading user " + label + " balance.");
-			return Math.max(0, balance);
+			return Math.max(0, Integer.parseInt(value.trim()));
 		} catch (NumberFormatException e) {
-			logger.warning("The " + label + " balance file is corrupt, starting from 0.");
+			logger.warning("Saved " + currency + " are corrupt, starting from 0.");
 			return 0;
-		} catch (IOException e) {
-			logger.warning("Couldn't load " + label + " balance, starting from 0.");
-			return 0;
-		} finally {
-			try {
-				if (bufferedReader != null)
-					bufferedReader.close();
-			} catch (IOException e) {
-				// Nothing else to do if closing fails.
-			}
 		}
 	}
 
-	/**
-	 * Shared implementation of saveCoins() and saveDiamonds(). Writes to a
-	 * temporary file first and then replaces the real one, so a crash in the
-	 * middle of a save can't leave an empty or half-written balance file.
-	 * Never throws: a failed save is logged and the game keeps running.
-	 *
-	 * @param fileName
-	 *            Name of the save file, next to the running jar.
-	 * @param balance
-	 *            Balance to persist.
-	 * @param label
-	 *            Short currency label, used only for log messages.
-	 */
-	private void saveBalance(final String fileName, final int balance,
-							 final String label) {
-		BufferedWriter bufferedWriter = null;
-		try {
-			File balanceFile = getSaveFile(fileName);
-			File tempFile = getSaveFile(fileName + ".tmp");
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(tempFile), Charset.forName("UTF-8")));
-			bufferedWriter.write(Integer.toString(balance));
-			bufferedWriter.newLine();
-			bufferedWriter.close();
-			bufferedWriter = null;
-
-			try {
-				Files.move(tempFile.toPath(), balanceFile.toPath(),
-						StandardCopyOption.REPLACE_EXISTING,
-						StandardCopyOption.ATOMIC_MOVE);
-			} catch (AtomicMoveNotSupportedException e) {
-				Files.move(tempFile.toPath(), balanceFile.toPath(),
-						StandardCopyOption.REPLACE_EXISTING);
-			}
-		} catch (IOException e) {
-			logger.warning("Couldn't save " + label + " balance: "
-					+ e.getMessage());
-		} finally {
-			try {
-				if (bufferedWriter != null)
-					bufferedWriter.close();
-			} catch (IOException e) {
-				// Nothing else to do if closing fails.
-			}
-		}
+	private void saveBalance(final String currency, final int balance) {
+		Properties values = loadSection("currency");
+		values.setProperty(currency, Integer.toString(balance));
+		if (!saveSection("currency", values))
+			logger.warning("Couldn't save " + currency + ".");
 	}
 
 		/**
