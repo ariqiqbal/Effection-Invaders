@@ -66,15 +66,9 @@ public class TitleScreen extends Screen {
 	 * @return Next screen code.
 	 */
 	public final int run() {
-		SoundManager soundManager = SoundManager.getInstance();
-        soundManager.playBgm(Sound.BGM_TITLE);
-
-		try{
-			super.run();
-			return this.returnCode;
-		} finally {
-			soundManager.stopBgm();
-		}
+		SoundManager.getInstance().playBgm(Sound.BGM_TITLE);
+    	super.run();
+    	return this.returnCode;
 	}
 
 	/**
@@ -201,6 +195,7 @@ public class TitleScreen extends Screen {
 	private void answerExitConfirm() {
 		if (this.exitConfirmYes) {
 			SoundManager.getInstance().playSfx(Sound.MENU_SELECT);
+			SoundManager.getInstance().stopBgm();
 			this.returnCode = MenuItem.EXIT.getCode();
 			this.isRunning = false;
 		} else
@@ -241,6 +236,9 @@ public class TitleScreen extends Screen {
 			return;
 
 		SoundManager.getInstance().playSfx(Sound.MENU_SELECT);
+
+		if (this.selected == MenuItem.PLAY)
+    		SoundManager.getInstance().stopBgm();
 
 		if (this.selected == MenuItem.EXIT) {
 			openExitConfirm();
