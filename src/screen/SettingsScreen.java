@@ -72,6 +72,7 @@ public class SettingsScreen extends Screen {
 		draw();
 
 		if (this.inputManager.isKeyDown(KeyEvent.VK_ESCAPE) && this.inputDelay.checkFinished()) {
+			SoundManager.getInstance().playSfx(Sound.MENU_CANCEL);
 			this.isRunning = false;
 		}
 
