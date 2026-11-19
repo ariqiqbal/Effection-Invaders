@@ -98,7 +98,7 @@ public final class ItemSystem {
     // Ownership is saved next to the game, like the coin balance. How an item becomes owned
     // (e.g. a shop purchase) belongs to the caller, which then calls grantEquipment.
 
-    private static final String EQUIPMENT_FILE = "equipment";
+    private static final String EQUIPMENT_SECTION = "equipment";
     private static Set<String> ownedEquipment;
     private static String equippedId;
     /** Item catalog for the equipment calls outside a run. Loaded on first use, refreshed when a run starts. */
@@ -182,17 +182,8 @@ public final class ItemSystem {
         if (ownedEquipment != null) return;
         ownedEquipment = new LinkedHashSet<String>();
         equippedId = null;
-        Properties saved = new Properties();
-        try {
-            File file = equipmentFile();
-            if (!file.exists()) return;
-            try (Reader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
-                saved.load(reader);
-            }
-        } catch (IOException | IllegalArgumentException error) {
-            Core.getLogger().warning("Couldn't load equipment, starting with none.");
-            return;
-        }
+        Properties saved = Core.getFileManager().loadSection(EQUIPMENT_SECTION);
+
         for (String id : saved.getProperty("owned", "").split(","))
             if (equipment(id.trim()) != null) ownedEquipment.add(id.trim());
         String equipped = saved.getProperty("equipped", "").trim();
@@ -208,28 +199,9 @@ public final class ItemSystem {
         Properties saved = new Properties();
         saved.setProperty("owned", String.join(",", ownedEquipment));
         saved.setProperty("equipped", equippedId == null ? "" : equippedId);
-        try {
-            Path file = equipmentFile().toPath();
-            Path temp = file.resolveSibling(EQUIPMENT_FILE + ".tmp");
-            try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-                saved.store(writer, "Item System equipment (owned, equipped)");
-            }
-            try {
-                Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException error) {
-                Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
-            }
-            return true;
-        } catch (IOException error) {
-            Core.getLogger().warning("Couldn't save equipment: " + error.getMessage());
-            return false;
-        }
-    }
-
-    /** Next to the game files, like the coin balance and player profile. */
-    private static File equipmentFile() throws IOException {
-        String path = ItemSystem.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        return new File(new File(URLDecoder.decode(path, "UTF-8")).getParent(), EQUIPMENT_FILE);
+        if (Core.getFileManager().saveSection(EQUIPMENT_SECTION, saved)) return true;
+        Core.getLogger().warning("Couldn't save equipment.");
+        return false;
     }
 
     /** General entry point for the shop, HUD and effects teams. */
