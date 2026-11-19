@@ -51,18 +51,15 @@ public final class FileManager {
 	private static final int MAX_SCORES = 7;
 	/** Name of the file containing persistent player progress. */
 	private static final String PLAYER_PROFILE_FILE = "player-profile";
-	/** Name of the file the player's coin balance is persisted to. */
-	private static final String COINS_FILE = "coins";
-	/** Name of the file the player's diamond balance is persisted to. */
-	private static final String DIAMONDS_FILE = "diamonds";
+	/** The one file every player save lives in, next to the game. */
+	private static final String SAVE_FILE = "save.txt";
 	/** Default shared font, relative to res/ or src/. */
 	public static final String DEFAULT_FONT = "silkscreen/Silkscreen-Regular.ttf";
 	/** Folder checked for fonts that are not on the classpath. */
 	private static final String SOURCE_FONT_DIR = "src";
 	/** Original game font in res/, used if the default font is missing. */
 	private static final String FALLBACK_FONT = "font.ttf";
-		/** The one file every player save lives in, next to the game. */
-	private static final String SAVE_FILE = "save.txt";
+
 
 	/**
 	 * private constructor.
@@ -450,47 +447,6 @@ public final class FileManager {
 			joinedIds.append(achievementId);
 		}
 		return joinedIds.toString();
-	}
-
-	/**
-	 * Loads the player's persisted coin balance (GoG - Currency System).
-	 * Kept in its own file so it never interferes with the player profile.
-	 *
-	 * @return Saved coin balance, or 0 if there is no save file yet or it
-	 *         cannot be read.
-	 */
-	public int loadCoins() {
-		return loadBalance(COINS_FILE, "coin");
-	}
-
-	/**
-	 * Saves the player's coin balance to disk (GoG - Currency System).
-	 *
-	 * @param coins
-	 *            Current coin balance to persist.
-	 */
-	public void saveCoins(final int coins) {
-		saveBalance(COINS_FILE, coins, "coin");
-	}
-
-	/**
-	 * Loads the player's persisted diamond balance (GoG - Currency System).
-	 *
-	 * @return Saved diamond balance, or 0 if there is no save file yet or
-	 *         it cannot be read.
-	 */
-	public int loadDiamonds() {
-		return loadBalance(DIAMONDS_FILE, "diamond");
-	}
-
-	/**
-	 * Saves the player's diamond balance to disk (GoG - Currency System).
-	 *
-	 * @param diamonds
-	 *            Current diamond balance to persist.
-	 */
-	public void saveDiamonds(final int diamonds) {
-		saveBalance(DIAMONDS_FILE, diamonds, "diamond");
 	}
 
 	/**
