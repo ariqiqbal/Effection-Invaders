@@ -239,14 +239,14 @@ public final class FileManager {
 	}
 
 	/**
-	 * Loads high scores from file, and returns a sorted list of pairs score -
-	 * value.
+	 * Loads high scores from the scores section of the save file, or the
+	 * defaults from res/scores when the player has none yet.
 	 *
 	 * @return Sorted list of scores - players.
 	 * @throws IOException
-	 *             In case of loading problems.
+	 *             In case the default scores can't be loaded.
 	 */
-	public List<Score> loadHighScores() throws IOException {
+public List<Score> loadHighScores() throws IOException {
 
 		List<Score> highScores = new ArrayList<Score>();
 		InputStream inputStream = null;
