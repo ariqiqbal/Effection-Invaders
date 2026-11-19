@@ -13,6 +13,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -56,6 +61,8 @@ public final class FileManager {
 	private static final String SOURCE_FONT_DIR = "src";
 	/** Original game font in res/, used if the default font is missing. */
 	private static final String FALLBACK_FONT = "font.ttf";
+		/** The one file every player save lives in, next to the game. */
+	private static final String SAVE_FILE = "save.txt";
 
 	/**
 	 * private constructor.
@@ -571,6 +578,111 @@ public final class FileManager {
 			} catch (IOException e) {
 				// Nothing else to do if closing fails.
 			}
+		}
+	}
+
+		/**
+	 * Reads one section of the save file. Never throws: a missing or
+	 * unreadable file reads as an empty section.
+	 *
+	 * @param section Section name, e.g. "shop".
+	 * @return The section's keys without the "section." prefix.
+	 */
+	public synchronized Properties loadSection(final String section) {
+		Properties values = new Properties();
+		Properties all = readSaveFile();
+		if (all == null)
+			return values;
+		String prefix = section + ".";
+		for (String key : all.stringPropertyNames())
+			if (key.startsWith(prefix))
+				values.setProperty(key.substring(prefix.length()),
+						all.getProperty(key));
+		return values;
+	}
+
+	/**
+	 * Replaces one section and keeps every other section as it is.
+	 *
+	 * @param section Section name, e.g. "shop".
+	 * @param values  The section's keys, without the "section." prefix.
+	 * @return false when the file couldn't be read or written, so a failed
+	 *         read never wipes the other sections.
+	 */
+	public synchronized boolean saveSection(final String section,
+			final Properties values) {
+		Properties all = readSaveFile();
+		if (all == null)
+			return false;
+		String prefix = section + ".";
+		for (String key : all.stringPropertyNames())
+			if (key.startsWith(prefix))
+				all.remove(key);
+		for (String key : values.stringPropertyNames())
+			all.setProperty(prefix + key, values.getProperty(key));
+		return writeSaveFile(all);
+	}
+
+	/**
+	 * @return Every saved key (empty if there is no save yet), or null when
+	 *         the file exists but can't be read.
+	 */
+	private Properties readSaveFile() {
+		Properties all = new Properties();
+		try {
+			File file = getSaveFile(SAVE_FILE);
+			if (!file.exists())
+				return all;
+			try (Reader reader = Files.newBufferedReader(file.toPath(),
+					StandardCharsets.UTF_8)) {
+				all.load(reader);
+			}
+			return all;
+		} catch (IOException | IllegalArgumentException e) {
+			logger.warning("Couldn't read the save file: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Writes every key sorted, so each section stays together. Writes a
+	 * temporary file first so a crash never leaves a half-written save.
+	 *
+	 * @param all Every key to save.
+	 * @return false (and logs) when the file couldn't be written.
+	 */
+	private boolean writeSaveFile(final Properties all) {
+		try {
+			Path file = getSaveFile(SAVE_FILE).toPath();
+			Path temp = file.resolveSibling(SAVE_FILE + ".tmp");
+			List<String> keys = new ArrayList<String>(all.stringPropertyNames());
+			Collections.sort(keys);
+			try (Writer writer = Files.newBufferedWriter(temp,
+					StandardCharsets.UTF_8)) {
+				writer.write("# Space Invaders save file");
+				writer.write(System.lineSeparator());
+				for (String key : keys) {
+					Properties one = new Properties();
+					one.setProperty(key, all.getProperty(key));
+					StringWriter line = new StringWriter();
+					one.store(line, null);
+					for (String text : line.toString().split("\\R"))
+						if (!text.isEmpty() && !text.startsWith("#")) {
+							writer.write(text);
+							writer.write(System.lineSeparator());
+						}
+				}
+			}
+			try {
+				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING,
+						StandardCopyOption.ATOMIC_MOVE);
+			} catch (AtomicMoveNotSupportedException e) {
+				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
+			}
+			return true;
+		} catch (IOException e) {
+			logger.warning("Couldn't write the save file: " + e.getMessage());
+			return false;
 		}
 	}
 
