@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import engine.vfx.*;
 import engine.CurrencyManager;
 import engine.DiamondManager;
 import engine.DrawManager.SpriteType;
@@ -929,7 +930,7 @@ public class ShopScreen extends Screen {
 				drawCometTrailPreview(centerX, top);
 				break;
 			case "ghost_trail":
-				engine.GhostTrail.drawPreview(this.drawManager,
+				GhostTrail.drawPreview(this.drawManager,
 						PurchaseManager.getInstance().getSelectedShip()
 								.getIdleSprite(),
 						PurchaseManager.getInstance().getSelectedSkin(),

@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import  engine.vfx.*;
 import engine.CoinDropManager;
 import engine.Cooldown;
 import engine.Core;
@@ -21,14 +22,14 @@ import engine.CurrencyManager;
 import engine.GameSettings;
 import engine.GameState;
 import engine.Achievement;
-import engine.DamageDimEffect;
-import engine.LightningChain;
+// import engine.DamageDimEffect;
+// import engine.LightningChain;
 import engine.GameEvents;
-import engine.GlitchEffect;
+// import engine.GlitchEffect;
 import engine.PurchaseManager;
 import engine.MeteorManager;
-import engine.ScreenShake;
-import engine.PointsEffect;
+// import engine.ScreenShake;
+// import engine.PointsEffect;
 import entity.Bullet;
 import entity.BulletPool;
 import entity.Coin;
@@ -164,7 +165,7 @@ public class GameScreen extends Screen {
 	/** Player's ship. */
 	private Ship ship;
 	/** Warp In effect, null if not bought. AUTHORED BY: VFX TEAM (Effection) */
-	private engine.WarpIn warpIn;
+	private WarpIn warpIn;
 	/** Bonus enemy ship that appears sometimes. */
 	private EnemyShip enemyShipSpecial;
 	/** Minimum time between bonus ship appearances. */
@@ -258,7 +259,7 @@ public class GameScreen extends Screen {
 	/** Points shown when enemies are destroyed. AUTHORED BY: VFX TEAM (Effection) */
 	private PointsEffect pointsEffect;
 	/** Ghost Trail ship effect, null if not bought or switched off. AUTHORED BY: VFX TEAM (Effection) */
-	private engine.GhostTrail ghostTrail;
+	private GhostTrail ghostTrail;
 	/** Diamonds earned this run but not yet cashed out; lost on death,
 	 * banked into DiamondManager only when the player cashes out. */
 	private int pendingDiamonds;
@@ -389,11 +390,11 @@ public class GameScreen extends Screen {
 		this.scoreBoostPopups = new ArrayList<long[]>(); // Item System (Team CS)
 		// Warp In effect, null if not bought or switched off. AUTHORED BY: VFX TEAM (Effection) */
 		if (PurchaseManager.getInstance().isEffectOn("warp_in")) {
-			this.warpIn = new engine.WarpIn();
+			this.warpIn = new WarpIn();
 			this.warpIn.startLevel(INPUT_DELAY);
 		}
 		if (PurchaseManager.getInstance().isEffectOn("ghost_trail"))		// Ghost Trail, on unless switched off in Customize. AUTHORED BY: VFX TEAM (Effection)
-			this.ghostTrail = new engine.GhostTrail();
+			this.ghostTrail = new GhostTrail();
 		this.coins = new HashSet<Coin>();
 		this.coinsCollectedThisLevel = 0;
 		this.achievementPopupQueue = new LinkedList<Achievement>();
@@ -854,7 +855,7 @@ public class GameScreen extends Screen {
 			else if (this.ghostTrail != null)
 				this.ghostTrail.draw(drawManager, this.ship,
 						this.skin.colorAt(System.currentTimeMillis()),
-						engine.GhostTrail.isBoosting(this.items));
+						GhostTrail.isBoosting(this.items));
 			drawManager.drawEntity(this.ship, this.ship.getPositionX(),
 					this.ship.getPositionY());
 			drawManager.drawItemShield(this.ship, this.items); // Item System (Team CS)
