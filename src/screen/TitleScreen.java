@@ -4,6 +4,8 @@ import java.awt.event.KeyEvent;
 
 import engine.Cooldown;
 import engine.Core;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 
 /**
  * Implements the title screen.
@@ -64,9 +66,15 @@ public class TitleScreen extends Screen {
 	 * @return Next screen code.
 	 */
 	public final int run() {
-		super.run();
+		SoundManager soundManager = SoundManager.getInstance();
+        soundManager.playBgm(Sound.BGM_TITLE);
 
-		return this.returnCode;
+		try{
+			super.run();
+			return this.returnCode;
+		} finally {
+			soundManager.stopBgm();
+		}
 	}
 
 	/**
