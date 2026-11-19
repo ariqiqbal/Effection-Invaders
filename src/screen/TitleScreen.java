@@ -120,14 +120,16 @@ public class TitleScreen extends Screen {
 			if (this.showingExitConfirm) {
 				final Boolean answer = drawManager.exitConfirmAnswerAt(this,
 						inputManager.getMouseX(), inputManager.getMouseY());
-				if (answer != null) {
+				if (answer != null && answer != this.exitConfirmYes) {
 					this.exitConfirmYes = answer;
+					 SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				}
 			} else {
 				MenuItem item = drawManager.menuItemAt(this,
 						inputManager.getMouseY());
-				if (item != null) {
+				if (item != null && item != this.selected) {
 					this.selected = item;
+					SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				}
 			}
 		}
@@ -142,11 +144,13 @@ public class TitleScreen extends Screen {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)
 					|| inputManager.isKeyDown(KeyEvent.VK_W)) {
 				this.selected = this.selected.previous();
+				SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				this.selectionCooldown.reset();
 			}
 			if (inputManager.isKeyDown(KeyEvent.VK_DOWN)
 					|| inputManager.isKeyDown(KeyEvent.VK_S)) {
 				this.selected = this.selected.next();
+				SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				this.selectionCooldown.reset();
 			}
 		}
@@ -173,6 +177,7 @@ public class TitleScreen extends Screen {
 					|| inputManager.isKeyDown(KeyEvent.VK_A)
 					|| inputManager.isKeyDown(KeyEvent.VK_D)) {
 				this.exitConfirmYes = !this.exitConfirmYes;
+				SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				this.selectionCooldown.reset();
 			}
 		}
@@ -195,6 +200,7 @@ public class TitleScreen extends Screen {
 	 */
 	private void answerExitConfirm() {
 		if (this.exitConfirmYes) {
+			SoundManager.getInstance().playSfx(Sound.MENU_SELECT);
 			this.returnCode = MenuItem.EXIT.getCode();
 			this.isRunning = false;
 		} else
@@ -205,6 +211,7 @@ public class TitleScreen extends Screen {
 	 * Closes the confirmation and hands focus back to the menu.
 	 */
 	private void closeExitConfirm() {
+		SoundManager.getInstance().playSfx(Sound.MENU_CANCEL);
 		this.showingExitConfirm = false;
 		this.exitConfirmYes = false;
 		this.selectionCooldown.reset();
@@ -232,6 +239,8 @@ public class TitleScreen extends Screen {
 	private void confirm() {
 		if (!this.selected.isEnabled())
 			return;
+
+		SoundManager.getInstance().playSfx(Sound.MENU_SELECT);
 
 		if (this.selected == MenuItem.EXIT) {
 			openExitConfirm();
