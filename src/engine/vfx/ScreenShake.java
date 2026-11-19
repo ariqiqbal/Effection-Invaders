@@ -1,4 +1,4 @@
-package engine;
+package engine.vfx;
 
 import java.util.Random;
 
