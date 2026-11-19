@@ -49,8 +49,6 @@ public final class FileManager {
 	private static Logger logger;
 	/** Max number of high scores. */
 	private static final int MAX_SCORES = 7;
-	/** Name of the file containing persistent player progress. */
-	private static final String PLAYER_PROFILE_FILE = "player-profile";
 	/** The one file every player save lives in, next to the game. */
 	private static final String SAVE_FILE = "save.txt";
 	/** Default shared font, relative to res/ or src/. */
@@ -344,22 +342,18 @@ public List<Score> loadHighScores() throws IOException {
 	}
 
 	/**
-	 * Loads persistent player progress from disk.
+	 * Loads persistent player progress from the profile section of the
+	 * save file.
 	 *
 	 * @return Loaded profile, or a new one when no profile has been saved.
-	 * @throws IOException In case of loading problems.
+	 * @throws IOException In case the saved profile is corrupt.
 	 */
 	public PlayerProfile loadPlayerProfile() throws IOException {
-		File profileFile = getPlayerProfileFile();
-		if (!profileFile.exists())
+		Properties properties = loadSection("profile");
+		if (properties.isEmpty())
 			return new PlayerProfile();
 
-		InputStream inputStream = null;
 		try {
-			inputStream = new FileInputStream(profileFile);
-			Properties properties = new Properties();
-			properties.load(inputStream);
-
 			int totalEnemiesKilled = Integer.parseInt(properties.getProperty(
 					"totalEnemiesKilled", "0"));
 			int flawlessLevelsCleared = Integer.parseInt(properties.getProperty(
@@ -372,65 +366,44 @@ public List<Score> loadHighScores() throws IOException {
 				for (String achievementId : unlocked.split(","))
 					unlockedAchievements.add(achievementId);
 
-			logger.info("Loading player profile.");
 			Set<String> completedShips = new HashSet<String>();
 			String completed = properties.getProperty("level10CompletedShips", "");
 			if (!completed.isEmpty())
 				for (String shipId : completed.split(","))
 					completedShips.add(shipId);
+
+			logger.info("Loading player profile.");
 			return new PlayerProfile(totalEnemiesKilled, unlockedAchievements,
 					completedShips, flawlessLevelsCleared, totalItemsUsed);
-		} finally {
-			if (inputStream != null)
-				inputStream.close();
+		} catch (NumberFormatException e) {
+			throw new IOException("The saved player profile is corrupt.", e);
 		}
 	}
 
 	/**
-	 * Saves persistent player progress to disk.
+	 * Saves persistent player progress to the profile section of the save
+	 * file.
 	 *
 	 * @param playerProfile Player progress to save.
 	 * @throws IOException In case of saving problems.
 	 */
 	public void savePlayerProfile(final PlayerProfile playerProfile)
 			throws IOException {
-		File profileFile = getPlayerProfileFile();
-		if (!profileFile.exists())
-			profileFile.createNewFile();
+		Properties properties = new Properties();
+		properties.setProperty("totalEnemiesKilled", Integer.toString(
+				playerProfile.getTotalEnemiesKilled()));
+		properties.setProperty("flawlessLevelsCleared", Integer.toString(
+				playerProfile.getFlawlessLevelsCleared()));
+		properties.setProperty("unlockedAchievements", joinAchievementIds(
+				playerProfile.getUnlockedAchievements()));
+		properties.setProperty("level10CompletedShips", joinAchievementIds(
+				playerProfile.getLevel10CompletedShips()));
+		properties.setProperty("totalItemsUsed",
+				Integer.toString(playerProfile.getTotalItemsUsed()));
 
-		OutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(profileFile);
-			Properties properties = new Properties();
-			properties.setProperty("totalEnemiesKilled", Integer.toString(
-					playerProfile.getTotalEnemiesKilled()));
-			properties.setProperty("flawlessLevelsCleared", Integer.toString(
-					playerProfile.getFlawlessLevelsCleared()));
-			properties.setProperty("unlockedAchievements", joinAchievementIds(
-					playerProfile.getUnlockedAchievements()));
-			properties.setProperty("level10CompletedShips", joinAchievementIds(
-					playerProfile.getLevel10CompletedShips()));
-			properties.setProperty("totalItemsUsed",
-					Integer.toString(playerProfile.getTotalItemsUsed()));
-			properties.store(outputStream, "Space Invaders player profile");
-			logger.info("Saving player profile.");
-		} finally {
-			if (outputStream != null)
-				outputStream.close();
-		}
-	}
-
-	/**
-	 * Returns the file used to persist player progress.
-	 *
-	 * @return Player profile file.
-	 * @throws IOException In case the application directory cannot be decoded.
-	 */
-	private File getPlayerProfileFile() throws IOException {
-		String jarPath = FileManager.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath();
-		jarPath = URLDecoder.decode(jarPath, "UTF-8");
-		return new File(new File(jarPath).getParent(), PLAYER_PROFILE_FILE);
+		logger.info("Saving player profile.");
+		if (!saveSection("profile", properties))
+			throw new IOException("Couldn't save the player profile.");
 	}
 
 	/**
