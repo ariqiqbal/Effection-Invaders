@@ -9,6 +9,8 @@ import java.util.List;
 import engine.Core;
 import engine.DrawManager.SpriteType;
 import engine.PurchaseManager;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import entity.Ship.ShipType;
 import shop.Currency;
 import shop.ShopCatalog;
@@ -179,6 +181,7 @@ public class ShipSelectScreen extends Screen {
 		} else if (confirm && this.row == Row.EFFECT) {
 			toggleEffect();
 		} else if (pressed(KeyEvent.VK_ESCAPE) || confirm) {
+			SoundManager.getInstance().playSfx(confirm ? Sound.MENU_SELECT : Sound.MENU_CANCEL);
 			this.isRunning = false;
 		} else if (pressed(KeyEvent.VK_UP) || pressed(KeyEvent.VK_W)) {
 			this.row = Row.values()[Math.floorMod(this.row.ordinal() - 1,
