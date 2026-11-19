@@ -667,11 +667,6 @@ public final class PurchaseManager {
 		return copied;
 	}
 
-	private void removeAll() {
-		this.owned.clear();
-		this.upgradesOff.clear();
-	}
-
 	/**
 	 * Deducts a price from the right balance.
 	 *
@@ -779,17 +774,5 @@ public final class PurchaseManager {
 		if (Core.getFileManager().saveSection(SAVE_SECTION, saved)){return true;} 
 		this.logger.warning("Couldn't save shop purchases.");
 		return false;
-	}
-
-	/**
-	 * @return The save file, next to the game like the other saves.
-	 * @throws IOException
-	 *             In case the application directory cannot be decoded.
-	 */
-	private File getOwnedFile() throws IOException {
-		String path = PurchaseManager.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath();
-		path = URLDecoder.decode(path, "UTF-8");
-		return new File(new File(path).getParent(), OWNED_FILE);
 	}
 }
