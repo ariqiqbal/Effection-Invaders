@@ -67,7 +67,7 @@ public final class JavaSoundBackend implements AudioBackend {
 
 	@Override
 	public synchronized void preload(final Sound sound) {
-		if (sound != null && sound.getCategory() == Sound.Category.SFX)
+		if (sound != null)
 			load(sound);
 	}
 
