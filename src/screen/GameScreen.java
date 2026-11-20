@@ -19,6 +19,8 @@ import engine.Core;
 import engine.DrawManager;
 import engine.GameSettings;
 import engine.GameState;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import engine.GameEvents;
 import engine.achievement.Achievement;
 import engine.currency.CoinDropManager;
@@ -347,6 +349,9 @@ public class GameScreen extends Screen {
 	 */
 	public final void initialize() {
 		super.initialize();
+		
+		// Keeps playing if it already is, so it does not restart each level.
+		SoundManager.getInstance().playBgm(Sound.BGM_GAME);
 
 		// Initialize the player in both boss and normal stages.
 		this.ship = new Ship(this.width / 2, this.height - 30,
@@ -1372,5 +1377,14 @@ if (this.midBoss != null) {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed, this.pendingDiamonds,
 				this.levelsCompletedRun, this.coinsCollected);
+	}
+		/**
+	 * Plays a gameplay sound effect.
+	 *
+	 * @param sound
+	 *            Effect to play.
+	 */
+	private static void playSfx(final Sound sound) {
+		SoundManager.getInstance().playSfx(sound);
 	}
 }
