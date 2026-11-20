@@ -7,6 +7,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import engine.soundEngine.SoundManager;
 
 import entity.Ship;
 import screen.AchievementsScreen;
@@ -187,6 +188,8 @@ public final class Core {
 				} while (gameState.getLivesRemaining() > 0
 						&& gameState.getLevel() <= NUM_LEVELS);
 
+				// The run is over (game over, last level or cash-out).
+				SoundManager.getInstance().stopBgm();
 				gameState = settlePendingDiamonds(gameState);
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
