@@ -589,6 +589,7 @@ public class GameScreen extends Screen {
 			// until cashed out (see engine.DiamondManager), and coins still
 			// falling are collected so the last kills' drops aren't lost.
 			if (isCleared && this.lives > 0) {
+				playSfx(Sound.LEVEL_UP); // victory
 				this.levelsCompletedRun++; // Sharpshooter tiers (Mantis)
 				this.pendingDiamonds += this.level;
 				collectRemainingCoins();
@@ -626,6 +627,8 @@ public class GameScreen extends Screen {
 	 * Any further inquiries please contact us.
 	 */
 	private void startGameOverSequence() {
+		SoundManager.getInstance().stopBgm();
+		playSfx(Sound.GAME_OVER);
 		this.levelFinished = true;
 		this.gameOverActive = true;
 
