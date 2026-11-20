@@ -1031,6 +1031,7 @@ if (this.midBoss != null) {
 							&& !this.items.tryBlockHit()) { // Shield item (Team CS)
 						this.ship.destroy();
 						this.lives--;
+						playSfx(Sound.PLAYER_EXPLOSION);
 						this.tookDamage = true; // Survivor tiers (Mantis)
 						GameEvents.emit(GameEvents.Type.PLAYER_HIT, this.lives); // AUTHORED BY: VFX TEAM (Effection)
 						this.logger.info("Hit on player ship, " + this.lives
@@ -1044,6 +1045,7 @@ if (this.midBoss != null) {
 							&& checkCollision(bullet, (Entity) this.midBoss)) {
 						this.score += this.midBoss.manageCollisionsBoss(bullet);
 						if (this.midBoss.isDestroyed()) {
+							playSfx(Sound.ENEMY_EXPLOSION);
 							this.shipsDestroyed++;
 							this.screenShake.trigger();
 							showUnlockedAchievement(Core.getAchievementManager()
@@ -1061,6 +1063,7 @@ if (this.midBoss != null) {
 							this.shipsDestroyed++;
 							spawnSparkles(enemyShip);
 							this.enemyShipFormation.destroy(enemyShip);
+							playSfx(Sound.ENEMY_EXPLOSION);
 							if (this.lightningOn) // Lightning Chain. AUTHORED BY: VFX TEAM (Effection)
 								this.lightningChain.onKill(
 										enemyShip.getPositionX() + enemyShip.getWidth() / 2,
@@ -1087,6 +1090,7 @@ if (this.midBoss != null) {
 					this.shipsDestroyed++;
 					spawnSparkles(this.enemyShipSpecial); // AUTHORED BY: VFX TEAM (Effection)
 					this.enemyShipSpecial.destroy();
+					playSfx(Sound.ENEMY_EXPLOSION);
 					this.screenShake.trigger();
 					// Bonus points popup. AUTHORED BY: VFX TEAM (Effection)
 					this.pointsEffect.spawnBonus(
