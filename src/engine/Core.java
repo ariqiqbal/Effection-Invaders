@@ -189,6 +189,8 @@ public final class Core {
 				} while (gameState.getLivesRemaining() > 0
 						&& gameState.getLevel() <= NUM_LEVELS);
 
+				// The run is over (game over, last level or cash-out).
+				SoundManager.getInstance().stopBgm();
 				gameState = settlePendingDiamonds(gameState);
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
