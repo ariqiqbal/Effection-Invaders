@@ -7,6 +7,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import engine.soundEngine.SoundManager;
+import engine.soundEngine.Sound;
 
 import entity.Ship;
 import screen.AchievementsScreen;
@@ -187,6 +189,8 @@ public final class Core {
 				} while (gameState.getLivesRemaining() > 0
 						&& gameState.getLevel() <= NUM_LEVELS);
 
+				// The run is over: gameplay music plays on the score screen.
+				SoundManager.getInstance().playBgm(Sound.BGM_GAME);
 				gameState = settlePendingDiamonds(gameState);
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
@@ -273,6 +277,9 @@ public final class Core {
 	 */
 	private static GameState offerCashOut(final GameState gameState,
 			final int width, final int height) {
+				// The level was cleared (not lost): play the victory sound as the next screen opens.
+		if (gameState.getLivesRemaining() > 0)
+			SoundManager.getInstance().playSfx(Sound.LEVEL_UP);
 		boolean canContinue = gameState.getLivesRemaining() > 0
 				&& gameState.getLevel() <= NUM_LEVELS;
 		if (!canContinue || gameState.getPendingDiamonds() <= 0)
