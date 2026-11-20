@@ -514,8 +514,10 @@ public class GameScreen extends Screen {
 					// Count bullets, not trigger pulls: Two Way fires two at
 					// once, and accuracy is kills per bullet.
 					int bulletsBefore = this.bullets.size();
-					if (this.ship.shoot(this.bullets))
+					if (this.ship.shoot(this.bullets)) {
 						this.bulletsShot += this.bullets.size() - bulletsBefore;
+						playSfx(Sound.SHOOT);
+					}
 				}
 				useItemSlots(); // Item System (Team CS)
 			}
