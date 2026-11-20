@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
+import engine.soundEngine.Sound;
 
 import engine.achievement.AchievementManager;
 import engine.currency.DiamondManager;
@@ -286,6 +287,9 @@ public final class Core {
 	 */
 	private static GameState offerCashOut(final GameState gameState,
 			final int width, final int height) {
+				// The level was cleared (not lost): play the victory sound as the next screen opens.
+		if (gameState.getLivesRemaining() > 0)
+			SoundManager.getInstance().playSfx(Sound.LEVEL_UP);
 		boolean canContinue = gameState.getLivesRemaining() > 0
 				&& gameState.getLevel() <= NUM_LEVELS;
 		if (!canContinue || gameState.getPendingDiamonds() <= 0)

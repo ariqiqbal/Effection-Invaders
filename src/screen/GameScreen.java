@@ -568,7 +568,10 @@ public class GameScreen extends Screen {
 		updateParticles(); // AUTHORED BY: VFX TEAM (Effection)
 		this.lightningChain.update();
 		updateCoins();
-		this.pendingDiamonds += this.meteors.update(this.ship, this.lives > 0); // VFX TEAM (Effection): updates the meteor and its diamonds, returns the diamonds to be added to pending
+		int diamondsCaught = this.meteors.update(this.ship, this.lives > 0);
+		if (diamondsCaught > 0)
+			playSfx(Sound.DIAMOND_PICKUP);
+		this.pendingDiamonds += diamondsCaught;
 		handleItemEvents();
 		updateAchievementPopup();
 		draw();
@@ -592,7 +595,6 @@ public class GameScreen extends Screen {
 			// until cashed out (see engine.DiamondManager), and coins still
 			// falling are collected so the last kills' drops aren't lost.
 			if (isCleared && this.lives > 0) {
-				playSfx(Sound.LEVEL_UP); // victory
 				this.levelsCompletedRun++; // Sharpshooter tiers (Mantis)
 				this.pendingDiamonds += this.level;
 				collectRemainingCoins();
@@ -1178,6 +1180,7 @@ if (this.midBoss != null) {
 			if (this.lives > 0 && !this.ship.isDestroyed()
 					&& checkCollision(coin, this.ship)) {
 				CurrencyManager.getInstance().addCoins(coin.getValue());
+				playSfx(Sound.COIN_PICKUP);
 				this.coinsCollectedThisLevel += coin.getValue();
 				this.coinsCollected += coin.getValue();
 				recyclable.add(coin);
