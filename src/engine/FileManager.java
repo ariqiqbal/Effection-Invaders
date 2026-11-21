@@ -422,7 +422,27 @@ public List<Score> loadHighScores() throws IOException {
 		return joinedIds.toString();
 	}
 
-		private int loadBalance(final String currency) {
+		/** @return Saved coin balance, or 0 if none. */
+	public int loadCoins() {
+		return loadBalance("coins");
+	}
+
+	/** @param coins Coin balance to save. */
+	public void saveCoins(final int coins) {
+		saveBalance("coins", coins);
+	}
+
+	/** @return Saved diamond balance, or 0 if none. */
+	public int loadDiamonds() {
+		return loadBalance("diamonds");
+	}
+
+	/** @param diamonds Diamond balance to save. */
+	public void saveDiamonds(final int diamonds) {
+		saveBalance("diamonds", diamonds);
+	}
+
+	private int loadBalance(final String currency) {
 		String value = loadSection("currency").getProperty(currency);
 		if (value == null)
 			return 0;
