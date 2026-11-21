@@ -12,7 +12,7 @@ import entity.EnemyShip;
 import entity.Entity;
 import entity.Ship;
 
-/** A safe practice wave before Stage 1. Practice does not affect game scores. */
+/** A safe practice wave opened from the main menu. Practice does not affect game scores. */
 public final class TutorialScreen extends Screen {
     private enum Step { MOVE, SHOOT, DEFEAT, COMPLETE }
 
@@ -21,7 +21,8 @@ public final class TutorialScreen extends Screen {
     private EnemyShip enemy;
     private final Set<Bullet> bullets = new HashSet<Bullet>();
     private boolean enterWasDown;
-    private boolean skipWasDown;
+    /** Height of the clickable Back row, in pixels. */
+    private static final int BACK_ROW_HEIGHT = 25;
 
     public TutorialScreen(final int width, final int height, final int fps) {
         super(width, height, fps);
@@ -34,7 +35,6 @@ public final class TutorialScreen extends Screen {
         enemy = null;
         returnCode = 1;
         enterWasDown = inputManager.isKeyDown(KeyEvent.VK_ENTER);
-        skipWasDown = inputManager.isKeyDown(KeyEvent.VK_S);
         inputDelay.reset();
     }
 
@@ -52,25 +52,25 @@ public final class TutorialScreen extends Screen {
     @Override
     protected void update() {
         boolean enterDown = inputManager.isKeyDown(KeyEvent.VK_ENTER);
-        boolean skipDown = inputManager.isKeyDown(KeyEvent.VK_S);
         if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
             returnCode = 1;
             isRunning = false;
             return;
         }
-        // A fresh press can skip any step, including the initial input delay.
-        // Ignore S held over from menu navigation until released and pressed again.
-        if (skipDown && !skipWasDown) {
-            returnCode = 2;
+        // Clicking Back works like ESC. Ignored during the input delay so the
+        // click that opened the tutorial cannot close it straight away.
+        if (inputDelay.checkFinished() && inputManager.isMousePressed()
+                && drawManager.isOnMenuRow(backBaseline(), BACK_ROW_HEIGHT,
+                        inputManager.getMouseY())) {
+            returnCode = 1;
             isRunning = false;
             return;
         }
-        skipWasDown = skipDown;
         if (inputDelay.checkFinished()) {
             if (step == Step.COMPLETE) {
                 // Require a fresh press so a held key cannot skip the message.
                 if (enterDown && !enterWasDown) {
-                    returnCode = 2;
+                    returnCode = 1;
                     isRunning = false;
                 }
             } else {
@@ -128,6 +128,11 @@ public final class TutorialScreen extends Screen {
             bullets.clear();
         }
     }
+    
+    /** Height the Back button is drawn at, level with other screens' hints. */
+    private int backBaseline() {
+        return height - 34;
+    }
 
     private static boolean overlaps(final Entity first, final Entity second) {
         return first.getPositionX() < second.getPositionX() + second.getWidth()
@@ -161,7 +166,7 @@ public final class TutorialScreen extends Screen {
             drawManager.drawCenteredRegularString(this,
                     "await in later stages.", 175);
             drawManager.drawCenteredRegularString(this,
-                    "Press ENTER to start Stage 1", 220);
+                    "Press ENTER to return to menu", 220);
         } else {
             drawManager.drawCenteredRegularString(this,
                     "Clear the wave to finish.", 140);
@@ -175,7 +180,7 @@ public final class TutorialScreen extends Screen {
         for (Bullet bullet : bullets) {
             drawManager.drawEntity(bullet, bullet.getPositionX(), bullet.getPositionY());
         }
-        drawManager.drawKeyHints(this, "S: skip to Stage 1 | ESC: menu");
+        drawManager.drawMenuRow(this, "Back (ESC)", backBaseline(), true);
         drawManager.completeDrawing(this);
     }
 }
