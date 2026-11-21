@@ -91,7 +91,7 @@ public final class PurchaseManager {
 	}
 
 	/** Name of the file purchases and the loadout are saved to. */
-	private static final String OWNED_FILE = "shop-owned";
+	private static final String SAVE_SECTION = "shop";
 	/** Save key prefix for owned entries and upgrade levels. */
 	private static final String OWNED_PREFIX = "owned.";
 	/** Save key of the chosen ship. */
@@ -667,11 +667,6 @@ public final class PurchaseManager {
 		return copied;
 	}
 
-	private void removeAll() {
-		this.owned.clear();
-		this.upgradesOff.clear();
-	}
-
 	/**
 	 * Deducts a price from the right balance.
 	 *
@@ -709,20 +704,7 @@ public final class PurchaseManager {
 	 * file just means owning nothing and using the Standard ship.
 	 */
 	private void load() {
-		Properties saved = new Properties();
-		try {
-			File file = getOwnedFile();
-			if (file.exists()) {
-				try (Reader reader = Files.newBufferedReader(file.toPath(),
-						StandardCharsets.UTF_8)) {
-					saved.load(reader);
-				}
-			}
-		} catch (IOException | IllegalArgumentException e) {
-			this.logger.warning("Couldn't load shop purchases.");
-			removeAll();
-			return;
-		}
+		Properties saved = Core.getFileManager().loadSection(SAVE_SECTION);
 
 		for (String key : saved.stringPropertyNames()) {
 			if (!key.startsWith(OWNED_PREFIX))
@@ -788,36 +770,9 @@ public final class PurchaseManager {
 		saved.setProperty(SHIP_KEY, this.selectedShip.name());
 		saved.setProperty(SKIN_KEY, this.selectedSkin.name());
 		saved.setProperty(MIGRATED_KEY, "true");
-		try {
-			Path file = getOwnedFile().toPath();
-			Path temp = file.resolveSibling(OWNED_FILE + ".tmp");
-			try (Writer writer = Files.newBufferedWriter(temp,
-					StandardCharsets.UTF_8)) {
-				saved.store(writer, "Space Invaders shop purchases and loadout");
-			}
-			try {
-				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING,
-						StandardCopyOption.ATOMIC_MOVE);
-			} catch (AtomicMoveNotSupportedException e) {
-				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
-			}
-			return true;
-		} catch (IOException e) {
-			this.logger.warning("Couldn't save shop purchases: "
-					+ e.getMessage());
-			return false;
-		}
-	}
-
-	/**
-	 * @return The save file, next to the game like the other saves.
-	 * @throws IOException
-	 *             In case the application directory cannot be decoded.
-	 */
-	private File getOwnedFile() throws IOException {
-		String path = PurchaseManager.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath();
-		path = URLDecoder.decode(path, "UTF-8");
-		return new File(new File(path).getParent(), OWNED_FILE);
+		
+		if (Core.getFileManager().saveSection(SAVE_SECTION, saved)){return true;} 
+		this.logger.warning("Couldn't save shop purchases.");
+		return false;
 	}
 }
