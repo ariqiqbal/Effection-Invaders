@@ -16,6 +16,8 @@ public enum MenuItem {
 
 	/** Starts the game. */
 	PLAY("Play", 2, true),
+	/** Practice screen that explains the controls. */
+	TUTORIAL("Tutorial", 8, true),
 	/** Customize screen (ship selection). */
 	SHIP_SELECT("Customize", 7, true),
 	/** Shop screen. */
