@@ -3,8 +3,8 @@ package screen;
 import java.awt.event.KeyEvent;
 
 import engine.Core;
-import engine.DiamondManager;
 import engine.GameState;
+import engine.currency.DiamondManager;
 
 /**
  * Shown right after a level is cleared, when there is a next level to play

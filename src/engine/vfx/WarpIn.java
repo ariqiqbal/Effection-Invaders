@@ -1,4 +1,4 @@
-package engine;
+package engine.vfx;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;

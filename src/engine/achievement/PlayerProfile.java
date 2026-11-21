@@ -1,4 +1,4 @@
-package engine;
+package engine.achievement;
 
 import java.util.HashSet;
 import java.util.Set;

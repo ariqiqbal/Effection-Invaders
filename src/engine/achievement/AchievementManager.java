@@ -1,4 +1,4 @@
-package engine;
+package engine.achievement;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -7,9 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
-import engine.Achievement.Requirement;
 
+import engine.Core;
 import engine.DrawManager.SpriteType;
+import engine.achievement.Achievement.Requirement;
 
 /** Manages achievement progress and persistence. */
 public class AchievementManager {

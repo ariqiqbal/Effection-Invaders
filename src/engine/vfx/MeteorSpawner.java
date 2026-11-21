@@ -1,6 +1,8 @@
-package engine;
+package engine.vfx;
 
 import java.util.Random;
+
+import engine.Core;
 
 /**
  * AUTHORED BY: VFX TEAM (Effection)

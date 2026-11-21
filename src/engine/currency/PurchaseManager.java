@@ -1,4 +1,4 @@
-package engine;
+package engine.currency;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +20,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import engine.Core;
+import engine.achievement.AchievementManager;
 import entity.Ship.ShipType;
 import item.ItemSystem;
 import shop.Currency;
