@@ -1318,6 +1318,43 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws the first-time player profile screen (WBS 3.5.7) in the style
+	 * of the title screen: the game title with a name prompt below it.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param name
+	 *            Name typed so far.
+	 * @param cursorOn
+	 *            Whether the blinking text cursor is shown.
+	 */
+	public void drawPlayerProfile(final Screen screen, final String name,
+			final boolean cursorOn) {
+		int height = screen.getHeight();
+		drawTitle(screen);
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredRegularString(screen, "WELCOME, PILOT", height / 2 - 20);
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredRegularString(screen, "ENTER YOUR NAME", height / 2 + 15);
+
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, "> " + name + (cursorOn ? "_" : " ")
+				+ " <", height / 2 + 60);
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		backBufferGraphics.drawLine(screen.getWidth() / 2 - 90,
+				height / 2 + 70, screen.getWidth() / 2 + 90, height / 2 + 70);
+
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredRegularString(screen, "UP TO 8 LETTERS OR NUMBERS",
+				height / 2 + 100);
+		backBufferGraphics.setColor(name.isEmpty() ? Color.DARK_GRAY
+				: Color.GREEN);
+		drawCenteredRegularString(screen, "TYPE NAME, ENTER TO START",
+				height - 30);
+	}
+
+	/**
 	 * Draws game results.
 	 *
 	 * @param screen
