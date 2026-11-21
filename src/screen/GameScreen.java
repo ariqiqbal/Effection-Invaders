@@ -19,6 +19,8 @@ import engine.Core;
 import engine.DrawManager;
 import engine.GameSettings;
 import engine.GameState;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import engine.GameEvents;
 import engine.achievement.Achievement;
 import engine.currency.CoinDropManager;
@@ -348,6 +350,9 @@ public class GameScreen extends Screen {
 	public final void initialize() {
 		super.initialize();
 
+		// Keeps playing if it already is, so it does not restart each level.
+		SoundManager.getInstance().playBgm(Sound.BGM_GAME);
+
 		// Initialize the player in both boss and normal stages.
 		this.ship = new Ship(this.width / 2, this.height - 30,
 				Core.getSelectedShipType());
@@ -509,8 +514,10 @@ public class GameScreen extends Screen {
 					// Count bullets, not trigger pulls: Two Way fires two at
 					// once, and accuracy is kills per bullet.
 					int bulletsBefore = this.bullets.size();
-					if (this.ship.shoot(this.bullets))
+					if (this.ship.shoot(this.bullets)) {
 						this.bulletsShot += this.bullets.size() - bulletsBefore;
+						playSfx(Sound.SHOOT);
+					}
 				}
 				useItemSlots(); // Item System (Team CS)
 			}
@@ -561,7 +568,10 @@ public class GameScreen extends Screen {
 		updateParticles(); // AUTHORED BY: VFX TEAM (Effection)
 		this.lightningChain.update();
 		updateCoins();
-		this.pendingDiamonds += this.meteors.update(this.ship, this.lives > 0); // VFX TEAM (Effection): updates the meteor and its diamonds, returns the diamonds to be added to pending
+		int diamondsCaught = this.meteors.update(this.ship, this.lives > 0);
+		if (diamondsCaught > 0)
+			playSfx(Sound.DIAMOND_PICKUP);
+		this.pendingDiamonds += diamondsCaught;
 		handleItemEvents();
 		updateAchievementPopup();
 		draw();
@@ -622,6 +632,8 @@ public class GameScreen extends Screen {
 	 * Any further inquiries please contact us.
 	 */
 	private void startGameOverSequence() {
+		SoundManager.getInstance().stopBgm();
+		playSfx(Sound.GAME_OVER);
 		this.levelFinished = true;
 		this.gameOverActive = true;
 
@@ -1032,6 +1044,7 @@ if (this.midBoss != null) {
 							&& !this.items.tryBlockHit()) { // Shield item (Team CS)
 						this.ship.destroy();
 						this.lives--;
+						playSfx(Sound.PLAYER_EXPLOSION);
 						this.tookDamage = true; // Survivor tiers (Mantis)
 						GameEvents.emit(GameEvents.Type.PLAYER_HIT, this.lives); // AUTHORED BY: VFX TEAM (Effection)
 						this.logger.info("Hit on player ship, " + this.lives
@@ -1045,6 +1058,7 @@ if (this.midBoss != null) {
 							&& checkCollision(bullet, (Entity) this.midBoss)) {
 						this.score += this.midBoss.manageCollisionsBoss(bullet);
 						if (this.midBoss.isDestroyed()) {
+							playSfx(Sound.ENEMY_EXPLOSION);
 							this.shipsDestroyed++;
 							this.screenShake.trigger();
 							showUnlockedAchievement(Core.getAchievementManager()
@@ -1062,6 +1076,7 @@ if (this.midBoss != null) {
 							this.shipsDestroyed++;
 							spawnSparkles(enemyShip);
 							this.enemyShipFormation.destroy(enemyShip);
+							playSfx(Sound.ENEMY_EXPLOSION);
 							if (this.lightningOn) // Lightning Chain. AUTHORED BY: VFX TEAM (Effection)
 								this.lightningChain.onKill(
 										enemyShip.getPositionX() + enemyShip.getWidth() / 2,
@@ -1088,6 +1103,7 @@ if (this.midBoss != null) {
 					this.shipsDestroyed++;
 					spawnSparkles(this.enemyShipSpecial); // AUTHORED BY: VFX TEAM (Effection)
 					this.enemyShipSpecial.destroy();
+					playSfx(Sound.ENEMY_EXPLOSION);
 					this.screenShake.trigger();
 					// Bonus points popup. AUTHORED BY: VFX TEAM (Effection)
 					this.pointsEffect.spawnBonus(
@@ -1164,6 +1180,7 @@ if (this.midBoss != null) {
 			if (this.lives > 0 && !this.ship.isDestroyed()
 					&& checkCollision(coin, this.ship)) {
 				CurrencyManager.getInstance().addCoins(coin.getValue());
+				playSfx(Sound.COIN_PICKUP);
 				this.coinsCollectedThisLevel += coin.getValue();
 				this.coinsCollected += coin.getValue();
 				recyclable.add(coin);
@@ -1372,5 +1389,14 @@ if (this.midBoss != null) {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed, this.pendingDiamonds,
 				this.levelsCompletedRun, this.coinsCollected);
+	}
+	/**
+	 * Plays a gameplay sound effect.
+	 *
+	 * @param sound
+	 *            Effect to play.
+	 */
+	private static void playSfx(final Sound sound) {
+		SoundManager.getInstance().playSfx(sound);
 	}
 }

@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import engine.Core;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import entity.Entity;
 import item.ItemAPI.*;
 
@@ -366,6 +368,7 @@ public final class ItemSystem {
                 logger.info("Item dropped: " + name + position(event.bounds) + ".");
                 break;
             case ITEM_COLLECTED:
+                SoundManager.getInstance().playSfx(Sound.ITEM_PICKUP);
                 if (event.slotIndex != null) {
                     int key = event.slotIndex + 1;
                     logger.info("Item collected: " + name + " stored in slot " + key + ".");

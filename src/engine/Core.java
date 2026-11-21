@@ -124,6 +124,7 @@ public final class Core {
 
 		// Loaded before the window opens, so the lobby music starts with it.
 		SoundManager.getInstance().preload(Sound.BGM_TITLE);
+		SoundManager.getInstance().preload(Sound.BGM_GAME);
 		
 		frame = new Frame(WIDTH, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
@@ -189,6 +190,8 @@ public final class Core {
 				} while (gameState.getLivesRemaining() > 0
 						&& gameState.getLevel() <= NUM_LEVELS);
 
+				// The run is over: gameplay music plays on the score screen.
+				SoundManager.getInstance().playBgm(Sound.BGM_GAME);
 				gameState = settlePendingDiamonds(gameState);
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
@@ -284,6 +287,9 @@ public final class Core {
 	 */
 	private static GameState offerCashOut(final GameState gameState,
 			final int width, final int height) {
+				// The level was cleared (not lost): play the victory sound as the next screen opens.
+		if (gameState.getLivesRemaining() > 0)
+			SoundManager.getInstance().playSfx(Sound.LEVEL_UP);
 		boolean canContinue = gameState.getLivesRemaining() > 0
 				&& gameState.getLevel() <= NUM_LEVELS;
 		if (!canContinue || gameState.getPendingDiamonds() <= 0)

@@ -27,6 +27,8 @@ public enum Sound {
 	COIN_PICKUP("sounds/coin_pickup.wav", Category.SFX),
 	/** Diamond picked up. */
 	DIAMOND_PICKUP("sounds/diamond_pickup.wav", Category.SFX),
+	/** Item drop collected during gameplay. */
+	ITEM_PICKUP("sounds/item_pickup.wav", Category.SFX),
 	/** Item bought in the shop. */
 	PURCHASE("sounds/purchase.wav", Category.SFX),
 	/** Cursor moved to another menu entry. */
