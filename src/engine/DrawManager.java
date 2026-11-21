@@ -1355,6 +1355,28 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws the message shown after the player's name is saved (WBS 3.5.7).
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param name
+	 *            Name that was saved.
+	 */
+	public void drawProfileSaved(final Screen screen, final String name) {
+		int height = screen.getHeight();
+		drawTitle(screen);
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredRegularString(screen, "WELCOME,", height / 2);
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, name + "!", height / 2 + 45);
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredRegularString(screen, "PROFILE SAVED", height / 2 + 90);
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		drawCenteredRegularString(screen, "STARTING...", height - 30);
+	}
+
+	/**
 	 * Draws game results.
 	 *
 	 * @param screen

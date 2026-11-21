@@ -16,12 +16,16 @@ public class ProfileScreen extends Screen {
 	public static final int MAX_NAME_LENGTH = 8;
 	/** Time the text cursor stays on or off, in milliseconds. */
 	private static final long CURSOR_BLINK_MS = 500;
+    /** Time the "profile saved" message shows, in milliseconds. */
+	private static final long SAVED_MESSAGE_MS = 2000;
     /** Moving stars behind the screen, as on the title screen. */
 	private Starfield starfield;
 	/** Name typed so far. */
 	private String name = "";
 	/** Whether Enter was already held on the previous update. */
 	private boolean enterWasDown;
+    /** When the name was saved, or 0 while the player is still typing. */
+	private long savedAt;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -48,12 +52,20 @@ public class ProfileScreen extends Screen {
         this.starfield = new Starfield(this.width, this.height);
 	}
 
-	/**
-	 * Adds typed characters to the name and saves it when Enter is pressed.
+    /**
+	 * Adds typed characters to the name and saves it when Enter is pressed,
+	 * then shows the saved message before closing.
 	 */
 	@Override
 	protected final void update() {
 		super.update();
+		this.starfield.update();
+		if (this.savedAt > 0) {
+			if (System.currentTimeMillis() - this.savedAt >= SAVED_MESSAGE_MS)
+				this.isRunning = false;
+			draw();
+			return;
+		}
 		for (char typed : this.inputManager.takeTypedChars().toCharArray())
 			this.name = typeChar(this.name, typed);
 
@@ -61,10 +73,9 @@ public class ProfileScreen extends Screen {
 		if (enterDown && !this.enterWasDown && !this.name.isEmpty()) {
 			if (!Core.getFileManager().savePlayerName(this.name))
 				this.logger.warning("Couldn't save the player name.");
-			this.isRunning = false;
+			this.savedAt = System.currentTimeMillis();
 		}
 		this.enterWasDown = enterDown;
-        this.starfield.update();
 		draw();
 	}
 
@@ -97,7 +108,10 @@ public class ProfileScreen extends Screen {
 		boolean cursorOn = System.currentTimeMillis() / CURSOR_BLINK_MS % 2 == 0;
 		drawManager.initDrawing(this);
         drawManager.drawStarfield(this, this.starfield);
-		drawManager.drawPlayerProfile(this, this.name, cursorOn);
+		if (this.savedAt > 0)
+			drawManager.drawProfileSaved(this, this.name);
+		else
+			drawManager.drawPlayerProfile(this, this.name, cursorOn);
 		drawManager.completeDrawing(this);
 	}
 }
