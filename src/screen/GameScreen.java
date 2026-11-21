@@ -1021,6 +1021,10 @@ if (this.midBoss != null) {
 	private void manageCollisions() {
 		Set<Bullet> recyclable = new HashSet<Bullet>();
 		for (Bullet bullet : this.bullets) {
+			if (hitsBunker(bullet)) { // AUTHORED BY: VFX TEAM (Effection)
+				recyclable.add(bullet);
+				continue;
+			}
 			if (bullet.getSpeed() > 0) {
 				if (checkCollision(bullet, this.ship) && !this.levelFinished) {
 					recyclable.add(bullet);
@@ -1316,6 +1320,22 @@ if (this.midBoss != null) {
 			this.unlockedAchievement = this.achievementPopupQueue.remove();
 			this.achievementPopupStartedAt = System.currentTimeMillis();
 		}
+	}
+		/**
+	 * Lets the first bunker in the bullet's way absorb it. Downward bullets
+	 * on boss levels are boss shots and damage a bigger area.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param bullet
+	 *            Bullet to check.
+	 * @return True if a bunker stopped the bullet.
+	 */
+	private boolean hitsBunker(final Bullet bullet) {
+		boolean bossShot = this.midBoss != null && bullet.getSpeed() > 0;
+		for (Bunker bunker : this.bunkers)
+			if (bunker.absorb(bullet, bossShot))
+				return true;
+		return false;
 	}
 
 	/**

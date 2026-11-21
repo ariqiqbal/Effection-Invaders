@@ -1,6 +1,7 @@
 package entity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -57,5 +58,48 @@ public class BunkerTest {
 		Bunker bunker = new Bunker(0, 0);
 		assertEquals(Bunker.MAX_DURABILITY, bunker.getDurability(0, 4));
 		assertEquals(0, bunker.getDurability(0, 0));
+	}
+	
+	@Test
+	public void enemyBulletIsStoppedAndDamagesTopBlocks() {
+		Bunker bunker = new Bunker(0, 100);
+		Bullet bullet = new Bullet(20, 95, 5);
+		assertTrue(bunker.absorb(bullet, false));
+		assertEquals(Bunker.MAX_DURABILITY - 1, bunker.getDurability(0, 11));
+	}
+
+	@Test
+	public void bulletBesideTheBunkerIsNotStopped() {
+		Bunker bunker = new Bunker(0, 100);
+		Bullet bullet = new Bullet(Bunker.WIDTH + 10, 95, 5);
+		assertFalse(bunker.absorb(bullet, false));
+	}
+
+	@Test
+	public void blockBreaksAfterThreeHits() {
+		Bunker bunker = new Bunker(0, 100);
+		for (int i = 0; i < Bunker.MAX_DURABILITY; i++)
+			assertTrue(bunker.absorb(new Bullet(20, 95, 5), false));
+		assertEquals(0, bunker.getDurability(0, 11));
+	}
+
+	@Test
+	public void playerBulletHitsFromBelow() {
+		Bunker bunker = new Bunker(0, 100);
+		Bullet bullet = new Bullet(2, 100 + Bunker.HEIGHT - 4, -5);
+		assertTrue(bunker.absorb(bullet, false));
+		assertEquals(Bunker.MAX_DURABILITY - 1,
+				bunker.getDurability(Bunker.ROWS - 1, 2));
+		assertEquals(Bunker.MAX_DURABILITY, bunker.getDurability(0, 2 + 4));
+	}
+
+	@Test
+	public void bossShotDamagesWiderArea() {
+		Bunker normal = new Bunker(0, 100);
+		Bunker boss = new Bunker(0, 100);
+		normal.absorb(new Bullet(20, 95, 5), false);
+		boss.absorb(new Bullet(20, 95, 5), true);
+		assertEquals(Bunker.MAX_DURABILITY, normal.getDurability(0, 7));
+		assertEquals(Bunker.MAX_DURABILITY - 1, boss.getDurability(0, 7));
 	}
 }

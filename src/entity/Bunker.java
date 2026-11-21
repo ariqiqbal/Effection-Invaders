@@ -45,6 +45,19 @@ public class Bunker {
 
 	/** Colour of an undamaged block. */
 	private static final Color COLOR = Color.GREEN;
+    /** Colour of a block hit once. */
+	private static final Color CRACKED = new Color(12, 165, 6);
+	/** Colour of a block hit twice. */
+	private static final Color DAMAGED = new Color(6, 95, 3);
+
+	/** Blocks damaged either side of a normal bullet's impact. */
+	private static final int SPLASH_HALF_WIDTH = 2;
+	/** Rows damaged by a normal bullet, in its direction of travel. */
+	private static final int SPLASH_DEPTH = 4;
+	/** Blocks damaged either side of a boss shot's impact. */
+	private static final int BOSS_SPLASH_HALF_WIDTH = 4;
+	/** Rows damaged by a boss shot, in its direction of travel. */
+	private static final int BOSS_SPLASH_DEPTH = 6;
 
 	/** Left edge of the bunker. */
 	private final int positionX;
@@ -110,7 +123,75 @@ public class Bunker {
 		}
 		return bunkers;
 	}
+    	/**
+	 * Stops a bullet that touches a standing block and damages the area
+	 * around the impact. Each block in the area loses 1 durability.
+	 *
+	 * @param bullet
+	 *            Bullet to check.
+	 * @param bossShot
+	 *            True for a boss shot, which damages a bigger area.
+	 * @return True if the bunker stopped the bullet.
+	 */
+	public final boolean absorb(final Bullet bullet, final boolean bossShot) {
+		int row = firstRowHit(bullet);
+		if (row < 0)
+			return false;
+		int center = Math.floorDiv(bullet.getPositionX()
+				+ bullet.getWidth() / 2 - this.positionX, BLOCK_SIZE);
+		int half = bossShot ? BOSS_SPLASH_HALF_WIDTH : SPLASH_HALF_WIDTH;
+		int depth = bossShot ? BOSS_SPLASH_DEPTH : SPLASH_DEPTH;
+		int direction = bullet.getSpeed() > 0 ? 1 : -1;
+		for (int i = 0; i < depth; i++)
+			damageRow(row + direction * i, center - half, center + half);
+		return true;
+	}
 
+	/**
+	 * Finds the first row with a standing block under the bullet, checked
+	 * from the side the bullet comes from.
+	 *
+	 * @param bullet
+	 *            Bullet to check.
+	 * @return Row index, or -1 if the bullet touches no standing block.
+	 */
+	private int firstRowHit(final Bullet bullet) {
+		int colStart = Math.max(0, Math.floorDiv(
+				bullet.getPositionX() - this.positionX, BLOCK_SIZE));
+		int colEnd = Math.min(COLUMNS - 1, Math.floorDiv(bullet.getPositionX()
+				+ bullet.getWidth() - 1 - this.positionX, BLOCK_SIZE));
+		int rowStart = Math.max(0, Math.floorDiv(
+				bullet.getPositionY() - this.positionY, BLOCK_SIZE));
+		int rowEnd = Math.min(ROWS - 1, Math.floorDiv(bullet.getPositionY()
+				+ bullet.getHeight() - 1 - this.positionY, BLOCK_SIZE));
+		boolean down = bullet.getSpeed() > 0;
+		for (int i = 0; i <= rowEnd - rowStart; i++) {
+			int row = down ? rowStart + i : rowEnd - i;
+			for (int col = colStart; col <= colEnd; col++)
+				if (this.durability[row][col] > 0)
+					return row;
+		}
+		return -1;
+	}
+
+	/**
+	 * Takes 1 durability from each standing block in part of a row.
+	 *
+	 * @param row
+	 *            Row to damage; ignored if outside the bunker.
+	 * @param fromCol
+	 *            First column to damage.
+	 * @param toCol
+	 *            Last column to damage.
+	 */
+	private void damageRow(final int row, final int fromCol, final int toCol) {
+		if (row < 0 || row >= ROWS)
+			return;
+		for (int col = Math.max(0, fromCol); col <= Math.min(COLUMNS - 1,
+				toCol); col++)
+			if (this.durability[row][col] > 0)
+				this.durability[row][col]--;
+	}
 	/**
 	 * Draws the blocks that are still standing.
 	 *
@@ -118,13 +199,27 @@ public class Bunker {
 	 *            Graphics to draw on.
 	 */
 	public final void draw(final Graphics graphics) {
-		graphics.setColor(COLOR);
 		for (int row = 0; row < ROWS; row++)
 			for (int col = 0; col < COLUMNS; col++)
-				if (this.durability[row][col] > 0)
+				if (this.durability[row][col] > 0) {
+					graphics.setColor(colorFor(this.durability[row][col]));
 					graphics.fillRect(this.positionX + col * BLOCK_SIZE,
 							this.positionY + row * BLOCK_SIZE,
 							BLOCK_SIZE, BLOCK_SIZE);
+				}
+	}
+
+	/**
+	 * Colour for a block's damage stage.
+	 *
+	 * @param durabilityLeft
+	 *            Durability left in the block.
+	 * @return Full, cracked or damaged colour.
+	 */
+	private static Color colorFor(final int durabilityLeft) {
+		if (durabilityLeft >= MAX_DURABILITY)
+			return COLOR;
+		return durabilityLeft == 2 ? CRACKED : DAMAGED;
 	}
 
 	/**
