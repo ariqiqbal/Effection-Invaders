@@ -468,12 +468,8 @@ public final class FileManager {
 		Properties all = new Properties();
 		try {
 			File file = getSaveFile(SAVE_FILE);
-			if (!file.exists()) {
-					all = importOldSaves();
-				if (!all.isEmpty())
-					writeSaveFile(all);
+			if (!file.exists())
 				return all;
-			}
 			try (Reader reader = Files.newBufferedReader(file.toPath(),
 					StandardCharsets.UTF_8)) {
 				all.load(reader);
@@ -483,68 +479,6 @@ public final class FileManager {
 			logger.warning("Couldn't read the save file: " + e.getMessage());
 			return null;
 		}
-	}
-
-		/**
-	 * Copies the old one-file-per-feature saves into their sections, once,
-	 * so updating the game keeps progress. Old files are left untouched.
-	 *
-	 * @return The imported keys, empty if there were no old saves.
-	 */
-	private Properties importOldSaves() {
-		Properties all = new Properties();
-		try {
-			importScores(all);
-			importProperties(all, "player-profile", "profile");
-			importBalance(all, "coins");
-			importBalance(all, "diamonds");
-			importProperties(all, "shop-owned", "shop");
-			importProperties(all, "equipment", "equipment");
-		} catch (IOException | IllegalArgumentException e) {
-			logger.warning("Couldn't import old saves: " + e.getMessage());
-		}
-		return all;
-	}
-
-	/** Imports an old properties file into a section. */
-	private void importProperties(final Properties all, final String oldFile,
-			final String section) throws IOException {
-		File file = getSaveFile(oldFile);
-		if (!file.exists())
-			return;
-		Properties old = new Properties();
-		try (Reader reader = Files.newBufferedReader(file.toPath(),
-				StandardCharsets.UTF_8)) {
-			old.load(reader);
-		}
-		for (String key : old.stringPropertyNames())
-			all.setProperty(section + "." + key, old.getProperty(key));
-	}
-
-	/** Imports the old scores file (name and score on alternate lines). */
-	private void importScores(final Properties all) throws IOException {
-		File file = getSaveFile("scores");
-		if (!file.exists())
-			return;
-		List<String> lines = Files.readAllLines(file.toPath(),
-				StandardCharsets.UTF_8);
-		for (int i = 0; i + 1 < lines.size() && i / 2 < MAX_SCORES; i += 2) {
-			all.setProperty("scores." + (i / 2) + ".name", lines.get(i));
-			all.setProperty("scores." + (i / 2) + ".score",
-					lines.get(i + 1).trim());
-		}
-	}
-
-	/** Imports an old one-number balance file (coins or diamonds). */
-	private void importBalance(final Properties all, final String currency)
-			throws IOException {
-		File file = getSaveFile(currency);
-		if (!file.exists())
-			return;
-		List<String> lines = Files.readAllLines(file.toPath(),
-				StandardCharsets.UTF_8);
-		if (!lines.isEmpty())
-			all.setProperty("currency." + currency, lines.get(0).trim());
 	}
 
 	/**
