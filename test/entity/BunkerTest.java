@@ -102,4 +102,36 @@ public class BunkerTest {
 		assertEquals(Bunker.MAX_DURABILITY, normal.getDurability(0, 7));
 		assertEquals(Bunker.MAX_DURABILITY - 1, boss.getDurability(0, 7));
 	}
+	
+	@Test
+	public void bulletsPassThroughAGapOnceBlocksAreDestroyed() {
+		Bunker bunker = new Bunker(0, 100);
+		int hits = 0;
+		while (fallsInto(bunker, 20))
+			hits++;
+		assertTrue(hits >= 3 && hits <= 8);
+		assertEquals(0, bunker.getDurability(0, 11));
+	}
+
+	/**
+	 * Moves an enemy bullet down through the bunker, 5 px a step.
+	 *
+	 * @return True if the bunker stopped the bullet on the way.
+	 */
+	private static boolean fallsInto(final Bunker bunker, final int x) {
+		for (int y = bunker.getPositionY() - 10; y < bunker.getPositionY()
+				+ Bunker.HEIGHT; y += 5)
+			if (bunker.absorb(new Bullet(x, y, 5), false))
+				return true;
+		return false;
+	}
+
+	@Test
+	public void newLevelBunkersStartUndamaged() {
+		List<Bunker> first = Bunker.createForLevel(3, SCREEN_WIDTH, ROW_Y);
+		first.get(0).absorb(new Bullet(first.get(0).getPositionX() + 20,
+				ROW_Y - 5, 5), false);
+		List<Bunker> next = Bunker.createForLevel(4, SCREEN_WIDTH, ROW_Y);
+		assertEquals(Bunker.MAX_DURABILITY, next.get(0).getDurability(0, 11));
+	}
 }
