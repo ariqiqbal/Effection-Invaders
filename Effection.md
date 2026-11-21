@@ -7,18 +7,20 @@ Hello everyone! We’re the Effection Team!
 Our team is responsible for developing the Visual Effects System for the game. 
 We'll be working on several improvements and new features aimed at enhancing the overall visual experience, gameplay feedback, and immersion.
 
+In the second project, the whole game is maintained in this repository by our team. We improve it (WBS 3.0) with a managed process: Jira (space VFX), code review, automated tests and CI. See [README.md](README.md).
+
 ## Members
 
-| Name           | Role                       | GitHub                                          |
-|----------------|----------------------------|-------------------------------------------------|
-| Khairul Suffie | Team Leader & Collaborator | [KaiSuf](https://github.com/KaiSuf)             |
-| Ariq Iqbal     | Assistant Developer        | [ariqiqbal](https://github.com/ariqiqbal)       |
-| Alya Fatihah   | UI/UX Designer             | [alyafths](http://github.com/alyafths)          |
-| Dian Melissa   | UI/UX Designer             | [dianpines](https://github.com/dianpines)       |
-| Najihah        | Project Analyst            | [najihahs](https://github.com/najihahs)         |
-| Maisarah       | Documentation              | [maisarah-mg](https://github.com/maisarah-mg)   |
-| NurSofia       | Performance & QA Developer | [sofiajourke](https://github.com/sofiajourke)   |
-| Elisya Natasha | Project Manager            | [deluluclover](https://github.com/deluluclover) |
+| Name           | Role                        | GitHub                                          |
+|----------------|-----------------------------|-------------------------------------------------|
+| Elisya Natasha | Project Manager             | [deluluclover](https://github.com/deluluclover) |
+| Alya Fatihah   | Scrum / Jira Master         | [alyafths](https://github.com/alyafths)         |
+| NurSofia       | Risk Analyst, Developer     | [sofiajourke](https://github.com/sofiajourke)   |
+| Najihah        | Estimation Lead, Developer  | [najihahs](https://github.com/najihahs)         |
+| Ariq Iqbal     | Git Master                  | [ariqiqbal](https://github.com/ariqiqbal)       |
+| Khairul Suffie | Quality Lead                | [KaiSuf](https://github.com/KaiSuf)             |
+| Dian Melissa   | Quality Tester              | [dianpines](https://github.com/dianpines)       |
+| Maisarah       | Report Lead, Developer      | [maisarah-mg](https://github.com/maisarah-mg)   |
 
 ---
 
@@ -183,7 +185,7 @@ Enhance the game environment and level progression through particle effects and 
 
 ### 3. Synchronization & Accessibility
 
-Provide reusable VFX components and libraries that can be easily accessed and used by other teams, including:
+Provide reusable VFX components and libraries that can be easily used by other game systems, including:
 
 - Reusable VFX components.
 - Consistent VFX events.
@@ -201,25 +203,25 @@ Cosmetic effects players can buy in the shop's **EFFECTS** tab. Bought once, on 
 
 | Effect | Price | What it does | Code |
 |--------|-------|--------------|------|
-| Warp In | 45 coins / 25 diamonds | The ship beams into the game at the start of each level (landing on "GO!") and, shorter, after a lost life: lock-on brackets, a rift opens, a beam strikes down, the ship rains in as a hologram, a scan line turns it solid, then an impact flash with light rays, ground rings, debris and a small screen shake. In the selected skin's colour; the shop shows a looping preview. | `src/engine/WarpIn.java` |
-| Ghost Trail | 55 coins / 30 diamonds | Fading copies of the ship follow it while it moves, in the selected skin's colour. Faster ship, stronger ghosts. While the Boost item is active, the trail surges (two extra ghosts and a brighter glow). Hidden while the ship is destroyed, on pause, game over and level clear. | `src/engine/GhostTrail.java` |
+| Warp In | 45 coins / 25 diamonds | The ship beams into the game at the start of each level (landing on "GO!") and, shorter, after a lost life: lock-on brackets, a rift opens, a beam strikes down, the ship rains in as a hologram, a scan line turns it solid, then an impact flash with light rays, ground rings, debris and a small screen shake. In the selected skin's colour; the shop shows a looping preview. | `src/engine/vfx/WarpIn.java` |
+| Ghost Trail | 55 coins / 30 diamonds | Fading copies of the ship follow it while it moves, in the selected skin's colour. Faster ship, stronger ghosts. While the Boost item is active, the trail surges (two extra ghosts and a brighter glow). Hidden while the ship is destroyed, on pause, game over and level clear. | `src/engine/vfx/GhostTrail.java` |
 
 ---
 
 
-## Dependencies on Other Teams
+## Integration with Other Game Systems
 
-### 1. Player & Enemy Ship Variety Team
+### 1. Player & Enemy Ships
 
-Our Visual Effect System needs access to the player and enemy entities, including their position, sprite/ship type, hitbox, and destruction state. This allows us to correctly attach effects such as enemy hit flashes, explosions, and player-destruction effects to the corresponding ship. The enemy/ship information is also needed so that effects can be positioned correctly and remain consistent with different player and enemy variants.
+The Visual Effect System needs access to the player and enemy entities, including their position, sprite/ship type, hitbox, and destruction state. This allows effects such as enemy hit flashes, explosions, and player-destruction effects to be attached to the correct ship, and to stay consistent with the different player and enemy variants.
 
-### 2. Level Design System Team
+### 2. Level Design
 
-Our Visual Effect System needs reliable wave/level start, wave completion, and level-transition events. These events allow us to trigger effects such as wave-clear animations, level-transition effects, and new-wave introduction effects at the correct point in the gameplay sequence. Without these events, the visual effects may be triggered at the wrong time or become disconnected from the actual game progression.
+The Visual Effect System needs reliable wave/level start, wave completion, and level-transition events. These events trigger effects such as wave-clear animations, level-transition effects, and new-wave introduction effects at the correct point in the gameplay sequence.
 
-### 3. Sound Effects/BGM Team
+### 3. Sound Effects / BGM
 
-Our Visual Effect System needs to coordinate with the Sound Effects/BGM Team for shared gameplay events such as player shooting, enemy hits, enemy destruction, and player damage/death. Visual and audio effects should be triggered from the same gameplay event and use consistent timing so that, for example, an enemy explosion and its explosion sound occur together. This coordination will help maintain consistent and responsive gameplay feedback.
+Visual and audio effects are triggered from the same gameplay events (player shooting, enemy hits, enemy destruction, player damage/death) with consistent timing, so that, for example, an enemy explosion and its explosion sound occur together.
 
 ---
 
@@ -238,5 +240,5 @@ Our Visual Effect System needs to coordinate with the Sound Effects/BGM Team for
 - Tier 1 (1–2 kills): blue, 2 jumps. Tier 2 (3–5): violet, 3 jumps.
   Tier 3 (6+): gold, 4 jumps, bigger flash.
 - Test switch until the shop sells it: `java -Dvfx.lightning=true -cp "out;res" engine.Core`
-- Files: `engine/LightningChain.java`, `GameScreen`, `DrawManager.drawLightningChain`,
+- Files: `engine/vfx/LightningChain.java`, `GameScreen`, `DrawManager.drawLightningChain`,
   `ShopScreen` (placeholder + preview).
