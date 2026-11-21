@@ -125,5 +125,9 @@ Third-party assets added by team Effection:
 | Game font Silkscreen | `res/silkscreen/` | SIL Open Font License 1.1 (`res/silkscreen/OFL.txt`) |
 | `res/sounds/bgm_title.wav` | "Short chiptune loop" by 2D_PlatformerGuy, [OpenGameArt](https://opengameart.org/content/short-chiptune-loop) | CC0 |
 | `res/sounds/menu_move.wav`, `menu_select.wav`, `menu_cancel.wav` | [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 |
+| `res/sounds/bgm_game.wav` | "Crystal Cave (song18)" by cynicmusic, [OpenGameArt](https://opengameart.org/content/crystal-cave-song18) (credit requested: pixelsphere.org / The Cynic Project) | CC0 |
+| `res/sounds/shoot.wav`, `enemy_explosion.wav`, `player_explosion.wav` | [Kenney Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds) | CC0 |
+| `res/sounds/item_pickup.wav`, `coin_pickup.wav`, `diamond_pickup.wav` | [Kenney Digital Audio](https://kenney.nl/assets/digital-audio) | CC0 |
+| `res/sounds/level_up.wav`, `game_over.wav` | [Kenney Music Jingles](https://kenney.nl/assets/music-jingles) | CC0 |
 
 Add every new asset to this table in the same pull request. Verify the licenses of other assets separately before bundling or redistributing them.
