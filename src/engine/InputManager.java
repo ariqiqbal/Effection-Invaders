@@ -29,6 +29,10 @@ public final class InputManager implements KeyListener, MouseMotionListener, Mou
 	private boolean isMoved = false;
 	/** Whether a mouse button is currently held down. */
 	private boolean isClick;
+	/** Characters typed since the last read. AUTHORED BY: VFX TEAM (Effection) */
+	private final StringBuilder typedChars = new StringBuilder();
+	/** Most typed characters kept while no screen reads them. */
+	private static final int MAX_TYPED_CHARS = 32;
 
 	/**
 	 * Private constructor.
@@ -84,16 +88,34 @@ public final class InputManager implements KeyListener, MouseMotionListener, Mou
 	}
 
 	/**
-	 * Does nothing.
-	 * 
+	 * Remembers the typed character for text input.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
 	 * @param key
 	 *            Key typed.
 	 */
 	@Override
 	public void keyTyped(final KeyEvent key) {
-
+		synchronized (this.typedChars) {
+			if (this.typedChars.length() < MAX_TYPED_CHARS)
+				this.typedChars.append(key.getKeyChar());
+		}
 	}
 
+	/**
+	 * Returns the characters typed since the last call and forgets them.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @return Typed characters, oldest first.
+	 */
+	public String takeTypedChars() {
+		synchronized (this.typedChars) {
+			String chars = this.typedChars.toString();
+			this.typedChars.setLength(0);
+			return chars;
+		}
+	}
+	
 	/**
 	 * Returns the current mouse X position.
 	 *

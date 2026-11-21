@@ -418,7 +418,33 @@ public final class FileManager {
 			logger.warning("Couldn't save " + currency + ".");
 	}
 
-		/**
+	/**
+	 * Loads the player's profile name from the player section of the save
+	 * file. AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @return Saved name, or null when no profile has been created yet.
+	 */
+	public String loadPlayerName() {
+		String name = loadSection("player").getProperty("name", "").trim();
+		return name.isEmpty() ? null : name;
+	}
+
+	/**
+	 * Saves the player's profile name to the player section of the save
+	 * file. AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param name
+	 *            Name to save.
+	 * @return false when the save file couldn't be written.
+	 */
+	public boolean savePlayerName(final String name) {
+		Properties values = new Properties();
+		values.setProperty("name", name);
+		logger.info("Saving player name.");
+		return saveSection("player", values);
+	}
+
+	/**
 	 * Reads one section of the save file. Never throws: a missing or
 	 * unreadable file reads as an empty section.
 	 *
