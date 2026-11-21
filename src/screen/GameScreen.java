@@ -26,6 +26,7 @@ import engine.currency.CurrencyManager;
 import engine.currency.PurchaseManager;
 import entity.Bullet;
 import entity.BulletPool;
+import entity.Bunker;
 import entity.Coin;
 import entity.CoinPool;
 import entity.EnemyShip;
@@ -56,6 +57,8 @@ public class GameScreen extends Screen {
 	private static final int BONUS_SHIP_VARIANCE = 10000;
 	/** Time until bonus ship explosion disappears. */
 	private static final int BONUS_SHIP_EXPLOSION = 500;
+	/** Gap in pixels between the bunker row and the player ship. */
+	private static final int BUNKER_GAP = 50;
 	/** Time from finishing the level to screen change. */
 	private static final int SCREEN_CHANGE_INTERVAL = 1500;
 	// Game over animation timings. AUTHORED BY: VFX TEAM (Effection)
@@ -195,6 +198,8 @@ public class GameScreen extends Screen {
 	private long achievementPopupStartedAt;
 	/** Set of all bullets fired by on screen ships. */
 	private Set<Bullet> bullets;
+	/** Destructible bunkers protecting the player. AUTHORED BY: VFX TEAM (Effection) */
+	private List<Bunker> bunkers;
 	/** Set of coins currently dropped and falling on screen. */
 	private Set<Coin> coins;
 	/** Coins picked up since this level (or its last restart) began. They
@@ -370,6 +375,9 @@ public class GameScreen extends Screen {
 		this.prevLives = this.lives;
 		this.lowHealthActive = false;
 		this.bullets = new HashSet<Bullet>();
+		// Bunkers sit a short gap above the ship. AUTHORED BY: VFX TEAM (Effection)
+		this.bunkers = Bunker.createForLevel(this.level, this.width,
+				this.ship.getPositionY() - BUNKER_GAP - Bunker.HEIGHT);
 		this.cometTrailOn = PurchaseManager.getInstance().isEffectOn("comet_trail"); // AUTHORED BY: VFX TEAM (Effection)
 		this.damageDim = new DamageDimEffect(900, 0.75f,
         new java.awt.Color(150, 0, 0));  //new update dim effect
@@ -864,6 +872,7 @@ if (this.midBoss != null) {
 		} else {
 			this.enemyShipFormation.draw();
 		}
+		drawManager.drawBunkers(this.bunkers); // AUTHORED BY: VFX TEAM (Effection)
 
 		// Hit sparkles move with the game world.
 		drawManager.drawParticles(this, this.particles,
@@ -1012,6 +1021,10 @@ if (this.midBoss != null) {
 	private void manageCollisions() {
 		Set<Bullet> recyclable = new HashSet<Bullet>();
 		for (Bullet bullet : this.bullets) {
+			if (hitsBunker(bullet)) { // AUTHORED BY: VFX TEAM (Effection)
+				recyclable.add(bullet);
+				continue;
+			}
 			if (bullet.getSpeed() > 0) {
 				if (checkCollision(bullet, this.ship) && !this.levelFinished) {
 					recyclable.add(bullet);
@@ -1307,6 +1320,22 @@ if (this.midBoss != null) {
 			this.unlockedAchievement = this.achievementPopupQueue.remove();
 			this.achievementPopupStartedAt = System.currentTimeMillis();
 		}
+	}
+		/**
+	 * Lets the first bunker in the bullet's way absorb it. Downward bullets
+	 * on boss levels are boss shots and damage a bigger area.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param bullet
+	 *            Bullet to check.
+	 * @return True if a bunker stopped the bullet.
+	 */
+	private boolean hitsBunker(final Bullet bullet) {
+		boolean bossShot = this.midBoss != null && bullet.getSpeed() > 0;
+		for (Bunker bunker : this.bunkers)
+			if (bunker.absorb(bullet, bossShot))
+				return true;
+		return false;
 	}
 
 	/**

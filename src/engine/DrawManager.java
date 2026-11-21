@@ -21,6 +21,7 @@ import screen.MenuItem;
 import screen.Screen;
 import screen.Starfield;
 import entity.Coin;
+import entity.Bunker;
 import entity.DiamondDrop;
 import entity.Entity;
 import entity.Meteor;
@@ -428,6 +429,17 @@ public final class DrawManager {
 	public void drawItemDrops(final ItemSystem items) {
 		backBufferGraphics.setFont(fontRegular);
 		items.drawDrops(backBufferGraphics);
+	}
+	
+	/**
+	 * Draws the destructible bunkers. AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param bunkers
+	 *            Bunkers on the current level.
+	 */
+	public void drawBunkers(final List<Bunker> bunkers) {
+		for (Bunker bunker : bunkers)
+			bunker.draw(backBufferGraphics);
 	}
 
 	/**
