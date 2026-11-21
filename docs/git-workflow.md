@@ -2,7 +2,7 @@
 
 Owner: Ariq (Git Master)
 
-Naming rules for branches, commits and PR titles: [`CONTRIBUTING.md`](../CONTRIBUTING.md). Quality rules a PR must pass: [`docs/coding-standards.md`](coding-standards.md), [`docs/test-plan.md`](test-plan.md).
+Naming rules for branches, commits and PR titles: [`CONTRIBUTING.md`](../CONTRIBUTING.md). Quality rules a PR must pass: [`CONTRIBUTING.md`](../CONTRIBUTING.md) (Definition of Done), [`docs/test-plan.md`](test-plan.md).
 
 ## 1.0 Strategy: GitHub Flow
 
