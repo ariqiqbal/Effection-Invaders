@@ -82,7 +82,20 @@ public final class SoundManager {
 	 */
 	public synchronized void preloadSfx() {
 		for (Sound sound : Sound.values())
-			backend.preload(sound);
+			if (sound.getCategory() == Sound.Category.SFX)
+				backend.preload(sound);
+	}
+
+	
+	/**
+	 * Loads one sound into memory ahead of time, so its first play starts
+	 * without a loading delay.
+	 *
+	 * @param sound
+	 *            Sound to load.
+	 */
+	public synchronized void preload(final Sound sound) {
+		backend.preload(sound);
 	}
 
 	/**

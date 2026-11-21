@@ -7,6 +7,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 
 import entity.Ship;
 import screen.AchievementsScreen;
@@ -117,6 +119,9 @@ public final class Core {
 			e.printStackTrace();
 		}
 
+		// Loaded before the window opens, so the lobby music starts with it.
+		SoundManager.getInstance().preload(Sound.BGM_TITLE);
+		
 		frame = new Frame(WIDTH, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();

@@ -9,6 +9,8 @@ import engine.AchievementManager;
 import engine.Cooldown;
 import engine.Core;
 import engine.DrawManager;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 
 /**
  * Implements the achievements screen, split into pages.
@@ -180,6 +182,7 @@ public class AchievementsScreen extends Screen {
 		}
 		if (this.inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
 				&& this.inputDelay.checkFinished()) {
+			SoundManager.getInstance().playSfx(Sound.MENU_CANCEL);
 			this.isRunning = false;
 		}
 	}

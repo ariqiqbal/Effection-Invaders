@@ -12,6 +12,8 @@ import engine.DiamondManager;
 import engine.DrawManager.SpriteType;
 import engine.PurchaseManager;
 import engine.PurchaseManager.PurchaseResult;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import entity.Ship.ShipType;
 import item.ItemAPI;
 import item.ItemSystem;
@@ -201,6 +203,7 @@ public class ShopScreen extends Screen {
 	/** Reacts to key presses. */
 	private void handleKeys() {
 		if (pressed(KeyEvent.VK_ESCAPE)) {
+			SoundManager.getInstance().playSfx(Sound.MENU_CANCEL);
 			this.isRunning = false;
 		} else if (pressed(KeyEvent.VK_LEFT) || pressed(KeyEvent.VK_A)) {
 			showTab(Tab.values()[Math.floorMod(this.tab.ordinal() - 1,
