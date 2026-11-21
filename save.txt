@@ -1,0 +1,11 @@
+# Space Invaders save file
+currency.coins=1
+profile.flawlessLevelsCleared=0
+profile.level10CompletedShips=
+profile.totalEnemiesKilled=17
+profile.totalItemsUsed=0
+profile.unlockedAchievements=first_kill
+shop.selected.ship=STANDARD
+shop.selected.skin=CLASSIC
+shop.upgrades.migrated=true
+shop.upgrades.off=

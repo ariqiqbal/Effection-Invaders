@@ -796,44 +796,149 @@ public final class DrawManager {
 				+ DIAMOND_ICON_GAP, textY);
 	}
 
+	/** Number of segments in a pause menu volume bar. */
+	private static final int PAUSE_BAR_SEGMENTS = 10;
+	/** Width of one volume bar segment, in pixels. */
+	private static final int PAUSE_BAR_SEGMENT_WIDTH = 14;
+	/** Gap between two volume bar segments, in pixels. */
+	private static final int PAUSE_BAR_GAP = 3;
+	/** Height of the volume bar, in pixels. */
+	private static final int PAUSE_BAR_HEIGHT = 5;
+	/** Extra height a row with a volume bar takes below its text. */
+	private static final int PAUSE_BAR_EXTRA = 12;
+
 	/**
-	 * Draws the in-game pause menu: a boxed panel over the frozen game,
-	 * same look as the exit confirmation, with a "PAUSED" title and a
-	 * vertical list of options. The selected option is green with a
-	 * leading cursor, like the main menu.
-	 *
-	 * @param screen
-	 *            Screen to draw on.
-	 * @param options
-	 *            Option labels, in the order they are listed.
-	 * @param selectedIndex
-	 *            Index of the option the cursor is on.
-	 */
+ 	* Draws the in-game pause menu: a boxed panel over the frozen game,
+ 	* with a "PAUSED" title and a vertical list of options. The selected
+ 	* option is green with a leading cursor. A row whose bar value is not
+ 	* negative also gets a segmented volume bar under its text.
+ 	*
+ 	* @param screen
+ 	*            Screen to draw on.
+ 	* @param options
+ 	*            Option labels, in the order they are listed.
+ 	* @param barPercents
+ 	*            Volume bar fill (0-100) for each option, or -1 for an
+ 	*            option without a bar. Same length as options.
+ 	* @param selectedIndex
+ 	*            Index of the option the cursor is on.
+ 	*/
 	public void drawPauseMenu(final Screen screen, final String[] options,
-							  final int selectedIndex) {
-		String title = "PAUSED";
+        	final int[] barPercents, final int selectedIndex) {
+    	String title = "PAUSED";
 
-		int spacing = menuItemSpacing();
-		int boxWidth = screen.getWidth() * 3 / 4;
-		int boxHeight = spacing * (options.length + 3);
-		int boxX = (screen.getWidth() - boxWidth) / 2;
-		int boxY = (screen.getHeight() - boxHeight) / 2;
+    	int spacing = menuItemSpacing();
+    	int boxWidth = screen.getWidth() * 3 / 4;
+    	int boxHeight = pauseBoxHeight(barPercents);
+    	int boxX = (screen.getWidth() - boxWidth) / 2;
+    	int boxY = (screen.getHeight() - boxHeight) / 2;
 
-		backBufferGraphics.setColor(Color.BLACK);
-		backBufferGraphics.fillRect(boxX, boxY, boxWidth, boxHeight);
-		backBufferGraphics.setColor(Color.GREEN);
-		backBufferGraphics.drawRect(boxX, boxY, boxWidth, boxHeight);
+    	backBufferGraphics.setColor(Color.BLACK);
+    	backBufferGraphics.fillRect(boxX, boxY, boxWidth, boxHeight);
+    	backBufferGraphics.setColor(Color.GREEN);
+    	backBufferGraphics.drawRect(boxX, boxY, boxWidth, boxHeight);
 
-		backBufferGraphics.setColor(Color.GREEN);
-		drawCenteredBigString(screen, title, boxY + spacing * 3 / 2);
+    	backBufferGraphics.setColor(Color.GREEN);
+    	drawCenteredBigString(screen, title, boxY + spacing * 3 / 2);
 
-		for (int i = 0; i < options.length; i++) {
-			boolean selected = i == selectedIndex;
-			String line = (selected ? "> " : " ") + options[i];
-			backBufferGraphics.setColor(selected ? Color.GREEN : Color.WHITE);
-			drawCenteredRegularString(screen, line,
-					boxY + spacing * (i + 3));
-		}
+    	for (int i = 0; i < options.length; i++) {
+        	boolean selected = i == selectedIndex;
+        	int baseline = pauseRowBaseline(screen, barPercents, i);
+        	String line = (selected ? "> " : "  ") + options[i];
+        	backBufferGraphics.setColor(selected ? Color.GREEN : Color.WHITE);
+        	drawCenteredRegularString(screen, line, baseline);
+        	if (barPercents[i] >= 0)
+            	drawPauseBar(screen, baseline, barPercents[i], selected);
+    	}
+	}
+
+	/** Draws a segmented volume bar under a row. */
+	private void drawPauseBar(final Screen screen, final int baseline,
+        	final int percent, final boolean selected) {
+    	int filled = Math.round(percent * PAUSE_BAR_SEGMENTS / 100f);
+    	int left = pauseBarLeft(screen);
+    	int top = baseline + fontRegularMetrics.getDescent() + 3;
+    	for (int s = 0; s < PAUSE_BAR_SEGMENTS; s++) {
+        	if (s < filled)
+            	backBufferGraphics.setColor(
+                	    selected ? Color.GREEN : Color.LIGHT_GRAY);
+        	else
+            	backBufferGraphics.setColor(Color.DARK_GRAY);
+        	backBufferGraphics.fillRect(
+            	    left + s * (PAUSE_BAR_SEGMENT_WIDTH + PAUSE_BAR_GAP), top,
+                	PAUSE_BAR_SEGMENT_WIDTH, PAUSE_BAR_HEIGHT);
+    	}
+	}
+
+	/** @return Total width of a volume bar. */
+	private int pauseBarWidth() {
+    	return PAUSE_BAR_SEGMENTS * PAUSE_BAR_SEGMENT_WIDTH
+            + (PAUSE_BAR_SEGMENTS - 1) * PAUSE_BAR_GAP;
+	}
+
+	/** @return X coordinate of the left edge of a centred volume bar. */
+	private int pauseBarLeft(final Screen screen) {
+    	return (screen.getWidth() - pauseBarWidth()) / 2;
+	}
+
+	/** Height of one row: normal spacing, plus room for the bar if it has one. */
+	private int pauseRowHeight(final int[] barPercents, final int index) {
+    	return menuItemSpacing()
+        	    + (barPercents[index] >= 0 ? PAUSE_BAR_EXTRA : 0);
+	}
+
+	/** Height of the whole pause panel. */
+	private int pauseBoxHeight(final int[] barPercents) {
+    	int height = menuItemSpacing() * 3;
+    	for (int i = 0; i < barPercents.length; i++)
+        	height += pauseRowHeight(barPercents, i);
+    	return height;
+	}
+
+	/** Baseline of a row. Drawing and mouse hit-testing both use this. */
+	private int pauseRowBaseline(final Screen screen,
+    	    final int[] barPercents, final int index) {
+    	int boxY = (screen.getHeight() - pauseBoxHeight(barPercents)) / 2;
+    	int y = boxY + menuItemSpacing() * 3;
+    	for (int i = 0; i < index; i++)
+        	y += pauseRowHeight(barPercents, i);
+    	return y;
+	}
+
+	/**
+ 	* Finds the row of the pause menu drawn at a given height.
+ 	*
+ 	* @return Index of the row on that height, or -1 if there is none.
+ 	*/
+	public int pauseRowAt(final Screen screen, final int[] barPercents,
+    	    final int positionY) {
+    	if (fontRegularMetrics == null)
+        	return -1;
+    	for (int i = 0; i < barPercents.length; i++) {
+        	int top = pauseRowBaseline(screen, barPercents, i)
+            	    - fontRegularMetrics.getAscent()
+                	- (menuItemSpacing() - fontRegularMetrics.getHeight()) / 2;
+        	if (positionY >= top
+            	    && positionY < top + pauseRowHeight(barPercents, i))
+            	return i;
+    	}
+    	return -1;
+	}
+
+	/**
+	 * Converts a mouse X position on a volume bar into a volume.
+	 *
+	 * @return Volume 0-100 in steps of 10, or -1 if the mouse is off the bar.
+	 */
+	public int pauseBarPercentAt(final Screen screen, final int positionX) {
+    	int offset = positionX - pauseBarLeft(screen);
+    	if (offset < -PAUSE_BAR_SEGMENT_WIDTH || offset > pauseBarWidth())
+        	return -1;
+    	if (offset < 0)
+        	return 0;
+    	int segment = offset / (PAUSE_BAR_SEGMENT_WIDTH + PAUSE_BAR_GAP);
+    	return Math.min(PAUSE_BAR_SEGMENTS, segment + 1) * 100
+        	    / PAUSE_BAR_SEGMENTS;
 	}
 
 	/**
