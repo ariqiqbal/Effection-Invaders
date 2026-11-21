@@ -245,7 +245,6 @@ public final class FileManager {
 	 *             In case the default scores can't be loaded.
 	 */
 public List<Score> loadHighScores() throws IOException {
-
 		List<Score> highScores = new ArrayList<Score>();
 		InputStream inputStream = null;
 		BufferedReader bufferedReader = null;
