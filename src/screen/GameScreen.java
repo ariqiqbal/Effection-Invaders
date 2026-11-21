@@ -349,7 +349,7 @@ public class GameScreen extends Screen {
 	 */
 	public final void initialize() {
 		super.initialize();
-		
+
 		// Keeps playing if it already is, so it does not restart each level.
 		SoundManager.getInstance().playBgm(Sound.BGM_GAME);
 
@@ -1390,7 +1390,7 @@ if (this.midBoss != null) {
 				this.bulletsShot, this.shipsDestroyed, this.pendingDiamonds,
 				this.levelsCompletedRun, this.coinsCollected);
 	}
-		/**
+	/**
 	 * Plays a gameplay sound effect.
 	 *
 	 * @param sound
