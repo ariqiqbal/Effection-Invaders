@@ -58,7 +58,7 @@ public class GameScreen extends Screen {
 	/** Time until bonus ship explosion disappears. */
 	private static final int BONUS_SHIP_EXPLOSION = 500;
 	/** Gap in pixels between the bunker row and the player ship. */
-	private static final int BUNKER_GAP = 20;
+	private static final int BUNKER_GAP = 50;
 	/** Time from finishing the level to screen change. */
 	private static final int SCREEN_CHANGE_INTERVAL = 1500;
 	// Game over animation timings. AUTHORED BY: VFX TEAM (Effection)

@@ -55,7 +55,7 @@ public class BunkerTest {
 	@Test
 	public void newBlocksStartAtFullDurability() {
 		Bunker bunker = new Bunker(0, 0);
-		assertEquals(Bunker.MAX_DURABILITY, bunker.getDurability(0, 2));
+		assertEquals(Bunker.MAX_DURABILITY, bunker.getDurability(0, 4));
 		assertEquals(0, bunker.getDurability(0, 0));
 	}
 }

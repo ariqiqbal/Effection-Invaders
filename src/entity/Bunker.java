@@ -15,18 +15,24 @@ import java.util.List;
 public class Bunker {
 
 	/** Size of one block in pixels. */
-	public static final int BLOCK_SIZE = 6;
+	public static final int BLOCK_SIZE = 2;
 	/** Hits a block can take before it is removed. */
 	public static final int MAX_DURABILITY = 3;
 
 	/** Bunker shape: 'x' is a block, '.' is empty space. */
 	private static final String[] SHAPE = {
-			"..xxxxxx..",
-			".xxxxxxxx.",
-			"xxxxxxxxxx",
-			"xxxxxxxxxx",
-			"xxx....xxx",
-			"xx......xx" };
+			"....xxxxxxxxxxxxxx....",
+			"...xxxxxxxxxxxxxxxx...",
+			"..xxxxxxxxxxxxxxxxxx..",
+			".xxxxxxxxxxxxxxxxxxxx.",
+			"xxxxxxxxxxxxxxxxxxxxxx",
+			"xxxxxxxxxxxxxxxxxxxxxx",
+			"xxxxxxxxxxxxxxxxxxxxxx",
+			"xxxxxxxxxxxxxxxxxxxxxx",
+			"xxxxxxx........xxxxxxx",
+			"xxxxxx..........xxxxxx",
+			"xxxxx............xxxxx",
+			"xxxxx............xxxxx" };
 
 	/** Number of block columns. */
 	public static final int COLUMNS = SHAPE[0].length();
