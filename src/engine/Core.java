@@ -158,12 +158,6 @@ public final class Core {
 				LOGGER.info("Closing title screen.");
 				break;
 			case 2:
-				// Practice first; ESC returns to the menu without starting a run.
-				currentScreen = new TutorialScreen(width, height, FPS);
-				returnCode = frame.setScreen(currentScreen);
-				if (returnCode != 2) {
-					break;
-				}
 				// Game & score.
 				do {
 					// One extra live every few levels.
@@ -247,6 +241,15 @@ public final class Core {
 						+ " ship select screen at " + FPS + " fps.");
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing ship select screen.");
+				break;
+			case 8:
+				// Tutorial, opened from the main menu. It always returns to
+				// the menu (code 1); it never starts a run.
+				currentScreen = new TutorialScreen(width, height, FPS);
+				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
+						+ " tutorial screen at " + FPS + " fps.");
+				returnCode = frame.setScreen(currentScreen);
+				LOGGER.info("Closing tutorial screen.");
 				break;
 			default:
 				// No screen for this code yet - back to the menu instead of
