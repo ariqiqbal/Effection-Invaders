@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
-import engine.soundEngine.Sound;
 
 import engine.achievement.AchievementManager;
 import engine.currency.DiamondManager;
