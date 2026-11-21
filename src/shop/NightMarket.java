@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import engine.EconomyConfig;
+import engine.currency.EconomyConfig;
 
 /**
  * The Night Market: a few shop entries sold at a discount, changing once a

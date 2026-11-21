@@ -1,4 +1,4 @@
-package engine;
+package engine.currency;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import engine.Core;
 
 /**
  * Economy balance values, read from res/economy.properties so the team can

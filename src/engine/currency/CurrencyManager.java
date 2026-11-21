@@ -1,4 +1,8 @@
-package engine;
+package engine.currency;
+
+// import engine.FileManager;
+import engine.Core;
+import engine.FileManager;
 
 /**
  * Tracks the player's coin balance and keeps it persisted to disk, so it
@@ -29,8 +33,9 @@ public final class CurrencyManager {
 	 * Private constructor, loads whatever balance was last saved.
 	 */
 	private CurrencyManager() {
-		this.coins = Math.max(0, FileManager.getInstance().loadCoins());
+		this.coins = Math.max(0, Core.getFileManager().loadCoins());
 	}
+
 
 	/**
 	 * Controls access to the currency manager.
@@ -115,6 +120,6 @@ public final class CurrencyManager {
 	 * Writes the current balance to disk.
 	 */
 	private void save() {
-		FileManager.getInstance().saveCoins(this.coins);
+		Core.getFileManager().saveCoins(this.coins);
 	}
 }

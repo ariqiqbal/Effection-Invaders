@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import engine.achievement.Achievement;
+import engine.vfx.*;
 import screen.MenuItem;
 import screen.Screen;
 import screen.Starfield;

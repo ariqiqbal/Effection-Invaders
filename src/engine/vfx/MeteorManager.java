@@ -1,4 +1,4 @@
-package engine;
+package engine.vfx;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import engine.Core;
+import engine.DrawManager;
 import entity.Bullet;
 import entity.DiamondDrop;
 import entity.EnemyShip;

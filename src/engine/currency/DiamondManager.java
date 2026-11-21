@@ -1,4 +1,9 @@
-package engine;
+package engine.currency;
+
+// import engine.FileManager;
+import engine.GameState;
+import engine.Core;
+import engine.FileManager;
 
 /**
  * Tracks the player's diamond balance and keeps it persisted to disk, the
@@ -25,7 +30,7 @@ public final class DiamondManager {
 	 * Private constructor, loads whatever balance was last saved.
 	 */
 	private DiamondManager() {
-		this.diamonds = Math.max(0, FileManager.getInstance().loadDiamonds());
+		this.diamonds = Math.max(0, Core.getFileManager().loadDiamonds());
 	}
 
 	/**
@@ -107,6 +112,6 @@ public final class DiamondManager {
 	 * Writes the current balance to disk.
 	 */
 	private void save() {
-		FileManager.getInstance().saveDiamonds(this.diamonds);
+		Core.getFileManager().saveDiamonds(this.diamonds);
 	}
 }

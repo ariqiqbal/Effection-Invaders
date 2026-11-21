@@ -4,11 +4,12 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import engine.Achievement;
-import engine.AchievementManager;
+
 import engine.Cooldown;
 import engine.Core;
 import engine.DrawManager;
+import engine.achievement.Achievement;
+import engine.achievement.AchievementManager;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
 

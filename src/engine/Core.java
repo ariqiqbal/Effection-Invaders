@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
 
+import engine.achievement.AchievementManager;
+import engine.currency.DiamondManager;
+import engine.currency.PurchaseManager;
 import entity.Ship;
 import screen.AchievementsScreen;
 import screen.CashOutScreen;

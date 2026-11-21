@@ -1,4 +1,4 @@
-package engine;
+package engine.achievement;
 
 import java.awt.Color;
 

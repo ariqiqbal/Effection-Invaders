@@ -8,7 +8,7 @@ import java.util.List;
 
 import engine.Core;
 import engine.DrawManager.SpriteType;
-import engine.PurchaseManager;
+import engine.currency.PurchaseManager;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
 import entity.Ship.ShipType;

@@ -7,11 +7,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import engine.CurrencyManager;
-import engine.DiamondManager;
+import engine.vfx.*;
 import engine.DrawManager.SpriteType;
-import engine.PurchaseManager;
-import engine.PurchaseManager.PurchaseResult;
+import engine.currency.CurrencyManager;
+import engine.currency.DiamondManager;
+import engine.currency.PurchaseManager;
+import engine.currency.PurchaseManager.PurchaseResult;
 import engine.soundEngine.Sound;
 import engine.soundEngine.SoundManager;
 import entity.Ship.ShipType;
@@ -932,7 +933,7 @@ public class ShopScreen extends Screen {
 				drawCometTrailPreview(centerX, top);
 				break;
 			case "ghost_trail":
-				engine.GhostTrail.drawPreview(this.drawManager,
+				GhostTrail.drawPreview(this.drawManager,
 						PurchaseManager.getInstance().getSelectedShip()
 								.getIdleSprite(),
 						PurchaseManager.getInstance().getSelectedSkin(),

@@ -1,4 +1,4 @@
-package engine;
+package engine.vfx;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+
+import engine.GameEvents;
 
 /**
  * AUTHORED BY: VFX TEAM (Effection)

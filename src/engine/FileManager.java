@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import engine.DrawManager.SpriteType;
+import engine.achievement.PlayerProfile;
 
 /**
  * Manages files used in the application.
@@ -68,7 +69,7 @@ public final class FileManager {
 	 *
 	 * @return Shared instance of FileManager.
 	 */
-	protected static FileManager getInstance() {
+	protected static FileManager getInstance() { 
 		if (instance == null)
 			instance = new FileManager();
 		return instance;

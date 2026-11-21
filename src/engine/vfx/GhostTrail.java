@@ -1,7 +1,8 @@
-package engine;
+package engine.vfx;
 
 import java.awt.Color;
 
+import engine.DrawManager;
 import engine.DrawManager.SpriteType;
 import entity.Ship;
 import item.ItemAPI;
