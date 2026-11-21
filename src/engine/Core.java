@@ -124,6 +124,7 @@ public final class Core {
 
 		// Loaded before the window opens, so the lobby music starts with it.
 		SoundManager.getInstance().preload(Sound.BGM_TITLE);
+		SoundManager.getInstance().preload(Sound.BGM_GAME);
 		
 		frame = new Frame(WIDTH, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
