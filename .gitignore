@@ -206,3 +206,7 @@ diamonds.tmp
 /lib/
 # Generated test and coverage reports (scripts/test.sh)
 /reports/
+
+# Single save file, written at runtime
+/save.txt
+/save.txt.tmp

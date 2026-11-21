@@ -13,6 +13,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -44,18 +49,15 @@ public final class FileManager {
 	private static Logger logger;
 	/** Max number of high scores. */
 	private static final int MAX_SCORES = 7;
-	/** Name of the file containing persistent player progress. */
-	private static final String PLAYER_PROFILE_FILE = "player-profile";
-	/** Name of the file the player's coin balance is persisted to. */
-	private static final String COINS_FILE = "coins";
-	/** Name of the file the player's diamond balance is persisted to. */
-	private static final String DIAMONDS_FILE = "diamonds";
+	/** The one file every player save lives in, next to the game. */
+	private static final String SAVE_FILE = "save.txt";
 	/** Default shared font, relative to res/ or src/. */
 	public static final String DEFAULT_FONT = "silkscreen/Silkscreen-Regular.ttf";
 	/** Folder checked for fonts that are not on the classpath. */
 	private static final String SOURCE_FONT_DIR = "src";
 	/** Original game font in res/, used if the default font is missing. */
 	private static final String FALLBACK_FONT = "font.ttf";
+
 
 	/**
 	 * private constructor.
@@ -235,53 +237,34 @@ public final class FileManager {
 	}
 
 	/**
-	 * Loads high scores from file, and returns a sorted list of pairs score -
-	 * value.
+	 * Loads high scores from the scores section of the save file, or the
+	 * defaults from res/scores when the player has none yet.
 	 *
 	 * @return Sorted list of scores - players.
 	 * @throws IOException
-	 *             In case of loading problems.
+	 *             In case the default scores can't be loaded.
 	 */
 	public List<Score> loadHighScores() throws IOException {
-
+		Properties saved = loadSection("scores");
 		List<Score> highScores = new ArrayList<Score>();
-		InputStream inputStream = null;
-		BufferedReader bufferedReader = null;
-
-		try {
-			String jarPath = FileManager.class.getProtectionDomain()
-					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8");
-
-			String scoresPath = new File(jarPath).getParent();
-			scoresPath += File.separator;
-			scoresPath += "scores";
-
-			File scoresFile = new File(scoresPath);
-			inputStream = new FileInputStream(scoresFile);
-			bufferedReader = new BufferedReader(new InputStreamReader(
-					inputStream, Charset.forName("UTF-8")));
-
-			logger.info("Loading user high scores.");
-
-			Score highScore = null;
-			String name = bufferedReader.readLine();
-			String score = bufferedReader.readLine();
-
-			while ((name != null) && (score != null)) {
-				highScore = new Score(name, Integer.parseInt(score));
-				highScores.add(highScore);
-				name = bufferedReader.readLine();
-				score = bufferedReader.readLine();
+		for (int i = 0; i < MAX_SCORES; i++) {
+			String name = saved.getProperty(i + ".name");
+			String score = saved.getProperty(i + ".score");
+			if (name == null || score == null)
+				break;
+			try {
+				highScores.add(new Score(name, Integer.parseInt(score.trim())));
+			} catch (NumberFormatException e) {
+				logger.warning("Skipping broken high score " + i + ".");
 			}
+		}
 
-		} catch (FileNotFoundException e) {
-			// loads default if there's no user scores.
+		if (highScores.isEmpty()) {
+			// No user scores yet: show the defaults from res/scores.
 			logger.info("Loading default high scores.");
 			highScores = loadDefaultHighScores();
-		} finally {
-			if (bufferedReader != null)
-				bufferedReader.close();
+		} else {
+			logger.info("Loading user high scores.");
 		}
 
 		Collections.sort(highScores);
@@ -289,73 +272,45 @@ public final class FileManager {
 	}
 
 	/**
-	 * Saves user high scores to disk.
+	 * Saves user high scores (the best 7) to the scores section of the
+	 * save file.
 	 *
 	 * @param highScores
 	 *            High scores to save.
 	 * @throws IOException
-	 *             In case of loading problems.
+	 *             In case of saving problems.
 	 */
 	public void saveHighScores(final List<Score> highScores)
 			throws IOException {
-		OutputStream outputStream = null;
-		BufferedWriter bufferedWriter = null;
-
-		try {
-			String jarPath = FileManager.class.getProtectionDomain()
-					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8");
-
-			String scoresPath = new File(jarPath).getParent();
-			scoresPath += File.separator;
-			scoresPath += "scores";
-
-			File scoresFile = new File(scoresPath);
-
-			if (!scoresFile.exists())
-				scoresFile.createNewFile();
-
-			outputStream = new FileOutputStream(scoresFile);
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					outputStream, Charset.forName("UTF-8")));
-
-			logger.info("Saving user high scores.");
-
-			// Saves 7 or less scores.
-			int savedCount = 0;
-			for (Score score : highScores) {
-				if (savedCount >= MAX_SCORES)
-					break;
-				bufferedWriter.write(score.getName());
-				bufferedWriter.newLine();
-				bufferedWriter.write(Integer.toString(score.getScore()));
-				bufferedWriter.newLine();
-				savedCount++;
-			}
-
-		} finally {
-			if (bufferedWriter != null)
-				bufferedWriter.close();
+		Properties values = new Properties();
+		int savedCount = 0;
+		for (Score score : highScores) {
+			if (savedCount >= MAX_SCORES)
+				break;
+			values.setProperty(savedCount + ".name", score.getName());
+			values.setProperty(savedCount + ".score",
+					Integer.toString(score.getScore()));
+			savedCount++;
 		}
-	}
 
+		logger.info("Saving user high scores.");
+		if (!saveSection("scores", values))
+			throw new IOException("Couldn't save high scores.");
+	}
+	
 	/**
-	 * Loads persistent player progress from disk.
+	 * Loads persistent player progress from the profile section of the
+	 * save file.
 	 *
 	 * @return Loaded profile, or a new one when no profile has been saved.
-	 * @throws IOException In case of loading problems.
+	 * @throws IOException In case the saved profile is corrupt.
 	 */
 	public PlayerProfile loadPlayerProfile() throws IOException {
-		File profileFile = getPlayerProfileFile();
-		if (!profileFile.exists())
+		Properties properties = loadSection("profile");
+		if (properties.isEmpty())
 			return new PlayerProfile();
 
-		InputStream inputStream = null;
 		try {
-			inputStream = new FileInputStream(profileFile);
-			Properties properties = new Properties();
-			properties.load(inputStream);
-
 			int totalEnemiesKilled = Integer.parseInt(properties.getProperty(
 					"totalEnemiesKilled", "0"));
 			int flawlessLevelsCleared = Integer.parseInt(properties.getProperty(
@@ -368,65 +323,44 @@ public final class FileManager {
 				for (String achievementId : unlocked.split(","))
 					unlockedAchievements.add(achievementId);
 
-			logger.info("Loading player profile.");
 			Set<String> completedShips = new HashSet<String>();
 			String completed = properties.getProperty("level10CompletedShips", "");
 			if (!completed.isEmpty())
 				for (String shipId : completed.split(","))
 					completedShips.add(shipId);
+
+			logger.info("Loading player profile.");
 			return new PlayerProfile(totalEnemiesKilled, unlockedAchievements,
 					completedShips, flawlessLevelsCleared, totalItemsUsed);
-		} finally {
-			if (inputStream != null)
-				inputStream.close();
+		} catch (NumberFormatException e) {
+			throw new IOException("The saved player profile is corrupt.", e);
 		}
 	}
 
 	/**
-	 * Saves persistent player progress to disk.
+	 * Saves persistent player progress to the profile section of the save
+	 * file.
 	 *
 	 * @param playerProfile Player progress to save.
 	 * @throws IOException In case of saving problems.
 	 */
 	public void savePlayerProfile(final PlayerProfile playerProfile)
 			throws IOException {
-		File profileFile = getPlayerProfileFile();
-		if (!profileFile.exists())
-			profileFile.createNewFile();
+		Properties properties = new Properties();
+		properties.setProperty("totalEnemiesKilled", Integer.toString(
+				playerProfile.getTotalEnemiesKilled()));
+		properties.setProperty("flawlessLevelsCleared", Integer.toString(
+				playerProfile.getFlawlessLevelsCleared()));
+		properties.setProperty("unlockedAchievements", joinAchievementIds(
+				playerProfile.getUnlockedAchievements()));
+		properties.setProperty("level10CompletedShips", joinAchievementIds(
+				playerProfile.getLevel10CompletedShips()));
+		properties.setProperty("totalItemsUsed",
+				Integer.toString(playerProfile.getTotalItemsUsed()));
 
-		OutputStream outputStream = null;
-		try {
-			outputStream = new FileOutputStream(profileFile);
-			Properties properties = new Properties();
-			properties.setProperty("totalEnemiesKilled", Integer.toString(
-					playerProfile.getTotalEnemiesKilled()));
-			properties.setProperty("flawlessLevelsCleared", Integer.toString(
-					playerProfile.getFlawlessLevelsCleared()));
-			properties.setProperty("unlockedAchievements", joinAchievementIds(
-					playerProfile.getUnlockedAchievements()));
-			properties.setProperty("level10CompletedShips", joinAchievementIds(
-					playerProfile.getLevel10CompletedShips()));
-			properties.setProperty("totalItemsUsed",
-					Integer.toString(playerProfile.getTotalItemsUsed()));
-			properties.store(outputStream, "Space Invaders player profile");
-			logger.info("Saving player profile.");
-		} finally {
-			if (outputStream != null)
-				outputStream.close();
-		}
-	}
-
-	/**
-	 * Returns the file used to persist player progress.
-	 *
-	 * @return Player profile file.
-	 * @throws IOException In case the application directory cannot be decoded.
-	 */
-	private File getPlayerProfileFile() throws IOException {
-		String jarPath = FileManager.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath();
-		jarPath = URLDecoder.decode(jarPath, "UTF-8");
-		return new File(new File(jarPath).getParent(), PLAYER_PROFILE_FILE);
+		logger.info("Saving player profile.");
+		if (!saveSection("profile", properties))
+			throw new IOException("Couldn't save the player profile.");
 	}
 
 	/**
@@ -445,132 +379,147 @@ public final class FileManager {
 		return joinedIds.toString();
 	}
 
-	/**
-	 * Loads the player's persisted coin balance (GoG - Currency System).
-	 * Kept in its own file so it never interferes with the player profile.
-	 *
-	 * @return Saved coin balance, or 0 if there is no save file yet or it
-	 *         cannot be read.
-	 */
+		/** @return Saved coin balance, or 0 if none. */
 	public int loadCoins() {
-		return loadBalance(COINS_FILE, "coin");
+		return loadBalance("coins");
 	}
 
-	/**
-	 * Saves the player's coin balance to disk (GoG - Currency System).
-	 *
-	 * @param coins
-	 *            Current coin balance to persist.
-	 */
+	/** @param coins Coin balance to save. */
 	public void saveCoins(final int coins) {
-		saveBalance(COINS_FILE, coins, "coin");
+		saveBalance("coins", coins);
 	}
 
-	/**
-	 * Loads the player's persisted diamond balance (GoG - Currency System).
-	 *
-	 * @return Saved diamond balance, or 0 if there is no save file yet or
-	 *         it cannot be read.
-	 */
+	/** @return Saved diamond balance, or 0 if none. */
 	public int loadDiamonds() {
-		return loadBalance(DIAMONDS_FILE, "diamond");
+		return loadBalance("diamonds");
 	}
 
-	/**
-	 * Saves the player's diamond balance to disk (GoG - Currency System).
-	 *
-	 * @param diamonds
-	 *            Current diamond balance to persist.
-	 */
+	/** @param diamonds Diamond balance to save. */
 	public void saveDiamonds(final int diamonds) {
-		saveBalance(DIAMONDS_FILE, diamonds, "diamond");
+		saveBalance("diamonds", diamonds);
+	}
+
+	private int loadBalance(final String currency) {
+		String value = loadSection("currency").getProperty(currency);
+		if (value == null)
+			return 0;
+		try {
+			return Math.max(0, Integer.parseInt(value.trim()));
+		} catch (NumberFormatException e) {
+			logger.warning("Saved " + currency + " are corrupt, starting from 0.");
+			return 0;
+		}
+	}
+
+	private void saveBalance(final String currency, final int balance) {
+		Properties values = loadSection("currency");
+		values.setProperty(currency, Integer.toString(balance));
+		if (!saveSection("currency", values))
+			logger.warning("Couldn't save " + currency + ".");
+	}
+
+		/**
+	 * Reads one section of the save file. Never throws: a missing or
+	 * unreadable file reads as an empty section.
+	 *
+	 * @param section Section name, e.g. "shop".
+	 * @return The section's keys without the "section." prefix.
+	 */
+	public synchronized Properties loadSection(final String section) {
+		Properties values = new Properties();
+		Properties all = readSaveFile();
+		if (all == null)
+			return values;
+		String prefix = section + ".";
+		for (String key : all.stringPropertyNames())
+			if (key.startsWith(prefix))
+				values.setProperty(key.substring(prefix.length()),
+						all.getProperty(key));
+		return values;
 	}
 
 	/**
-	 * Shared implementation of loadCoins() and loadDiamonds(). Never throws:
-	 * a missing or corrupt file just means starting from zero, so the game
-	 * keeps running.
+	 * Replaces one section and keeps every other section as it is.
 	 *
-	 * @param fileName
-	 *            Name of the save file, next to the running jar.
-	 * @param label
-	 *            Short currency label, used only for log messages.
-	 * @return Saved balance, never negative.
+	 * @param section Section name, e.g. "shop".
+	 * @param values  The section's keys, without the "section." prefix.
+	 * @return false when the file couldn't be read or written, so a failed
+	 *         read never wipes the other sections.
 	 */
-	private int loadBalance(final String fileName, final String label) {
-		BufferedReader bufferedReader = null;
+	public synchronized boolean saveSection(final String section,
+			final Properties values) {
+		Properties all = readSaveFile();
+		if (all == null)
+			return false;
+		String prefix = section + ".";
+		for (String key : all.stringPropertyNames())
+			if (key.startsWith(prefix))
+				all.remove(key);
+		for (String key : values.stringPropertyNames())
+			all.setProperty(prefix + key, values.getProperty(key));
+		return writeSaveFile(all);
+	}
+
+	/**
+	 * @return Every saved key (empty if there is no save yet), or null when
+	 *         the file exists but can't be read.
+	 */
+	private Properties readSaveFile() {
+		Properties all = new Properties();
 		try {
-			File balanceFile = getSaveFile(fileName);
-			if (!balanceFile.exists()) {
-				logger.info("No " + label + " balance saved yet, starting from 0.");
-				return 0;
+			File file = getSaveFile(SAVE_FILE);
+			if (!file.exists())
+				return all;
+			try (Reader reader = Files.newBufferedReader(file.toPath(),
+					StandardCharsets.UTF_8)) {
+				all.load(reader);
 			}
-			bufferedReader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(balanceFile), Charset.forName("UTF-8")));
-			String line = bufferedReader.readLine();
-			int balance = line == null ? 0 : Integer.parseInt(line.trim());
-			logger.info("Loading user " + label + " balance.");
-			return Math.max(0, balance);
-		} catch (NumberFormatException e) {
-			logger.warning("The " + label + " balance file is corrupt, starting from 0.");
-			return 0;
-		} catch (IOException e) {
-			logger.warning("Couldn't load " + label + " balance, starting from 0.");
-			return 0;
-		} finally {
-			try {
-				if (bufferedReader != null)
-					bufferedReader.close();
-			} catch (IOException e) {
-				// Nothing else to do if closing fails.
-			}
+			return all;
+		} catch (IOException | IllegalArgumentException e) {
+			logger.warning("Couldn't read the save file: " + e.getMessage());
+			return null;
 		}
 	}
 
 	/**
-	 * Shared implementation of saveCoins() and saveDiamonds(). Writes to a
-	 * temporary file first and then replaces the real one, so a crash in the
-	 * middle of a save can't leave an empty or half-written balance file.
-	 * Never throws: a failed save is logged and the game keeps running.
+	 * Writes every key sorted, so each section stays together. Writes a
+	 * temporary file first so a crash never leaves a half-written save.
 	 *
-	 * @param fileName
-	 *            Name of the save file, next to the running jar.
-	 * @param balance
-	 *            Balance to persist.
-	 * @param label
-	 *            Short currency label, used only for log messages.
+	 * @param all Every key to save.
+	 * @return false (and logs) when the file couldn't be written.
 	 */
-	private void saveBalance(final String fileName, final int balance,
-							 final String label) {
-		BufferedWriter bufferedWriter = null;
+	private boolean writeSaveFile(final Properties all) {
 		try {
-			File balanceFile = getSaveFile(fileName);
-			File tempFile = getSaveFile(fileName + ".tmp");
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(tempFile), Charset.forName("UTF-8")));
-			bufferedWriter.write(Integer.toString(balance));
-			bufferedWriter.newLine();
-			bufferedWriter.close();
-			bufferedWriter = null;
-
+			Path file = getSaveFile(SAVE_FILE).toPath();
+			Path temp = file.resolveSibling(SAVE_FILE + ".tmp");
+			List<String> keys = new ArrayList<String>(all.stringPropertyNames());
+			Collections.sort(keys);
+			try (Writer writer = Files.newBufferedWriter(temp,
+					StandardCharsets.UTF_8)) {
+				writer.write("# Space Invaders save file");
+				writer.write(System.lineSeparator());
+				for (String key : keys) {
+					Properties one = new Properties();
+					one.setProperty(key, all.getProperty(key));
+					StringWriter line = new StringWriter();
+					one.store(line, null);
+					for (String text : line.toString().split("\\R"))
+						if (!text.isEmpty() && !text.startsWith("#")) {
+							writer.write(text);
+							writer.write(System.lineSeparator());
+						}
+				}
+			}
 			try {
-				Files.move(tempFile.toPath(), balanceFile.toPath(),
-						StandardCopyOption.REPLACE_EXISTING,
+				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING,
 						StandardCopyOption.ATOMIC_MOVE);
 			} catch (AtomicMoveNotSupportedException e) {
-				Files.move(tempFile.toPath(), balanceFile.toPath(),
-						StandardCopyOption.REPLACE_EXISTING);
+				Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
 			}
+			return true;
 		} catch (IOException e) {
-			logger.warning("Couldn't save " + label + " balance: "
-					+ e.getMessage());
-		} finally {
-			try {
-				if (bufferedWriter != null)
-					bufferedWriter.close();
-			} catch (IOException e) {
-				// Nothing else to do if closing fails.
-			}
+			logger.warning("Couldn't write the save file: " + e.getMessage());
+			return false;
 		}
 	}
 
