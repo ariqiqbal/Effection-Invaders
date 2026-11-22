@@ -80,7 +80,8 @@ public class EnemyShip extends Entity {
 	 * known starting properties.
 	 */
 	public EnemyShip() {
-		super(-32, 60, 16 * 2, 7 * 2, Color.RED);
+		// y = 76: just below the item HUD strip (y 42-72), so the HUD never hides it. AUTHORED BY: VFX TEAM (Effection)
+		super(-32, 76, 16 * 2, 7 * 2, Color.RED);
 
 		this.spriteType = SpriteType.EnemyShipSpecial;
 		this.isDestroyed = false;
