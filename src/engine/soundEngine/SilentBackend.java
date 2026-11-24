@@ -35,6 +35,10 @@ public final class SilentBackend implements AudioBackend {
 	@Override
 	public void setBgmVolume(final float volume) {
 	}
+	
+	@Override
+	public void setSfxVolume(final float volume) {
+	}
 
 	@Override
 	public void dispose() {

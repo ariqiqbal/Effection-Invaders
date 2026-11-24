@@ -124,6 +124,13 @@ public final class JavaSoundBackend implements AudioBackend {
 		if (bgmClip != null)
 			applyVolume(bgmClip, volume);
 	}
+	
+	@Override
+	public synchronized void setSfxVolume(final float volume) {
+		for (Map.Entry<Sound, Clip> entry : clips.entrySet())
+			if (entry.getKey().getCategory() == Sound.Category.SFX)
+				applyVolume(entry.getValue(), volume);
+	}
 
 	@Override
 	public synchronized void dispose() {
