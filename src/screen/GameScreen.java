@@ -490,6 +490,7 @@ public class GameScreen extends Screen {
 				&& this.pauseKeyCooldown.checkFinished()) {
 			this.paused = !this.paused;
 			this.pauseKeyCooldown.reset();
+			playSfx(this.paused ? Sound.MENU_SELECT : Sound.MENU_CANCEL);
 			// Ghost Trail starts fresh after a pause. AUTHORED BY: VFX TEAM (Effection)
 			if (this.ghostTrail != null)
 				this.ghostTrail.clear();
@@ -800,8 +801,11 @@ public class GameScreen extends Screen {
     	// menu. Pressing on a volume bar sets that volume (dragging too).
     	int row = drawManager.pauseRowAt(this, pauseBarPercents(),
             	inputManager.getMouseY());
-    	if (inputManager.isMouseMoved() && row >= 0)
-       	 	this.pauseSelection = PauseOption.values()[row];
+    	if (inputManager.isMouseMoved() && row >= 0
+				&& PauseOption.values()[row] != this.pauseSelection) {
+			this.pauseSelection = PauseOption.values()[row];
+			playSfx(Sound.MENU_MOVE);
+		}
     	if (row >= 0 && mouseDown) {
         	PauseOption hovered = PauseOption.values()[row];
         	Sound.Category category = volumeCategory(hovered);
@@ -826,10 +830,12 @@ public class GameScreen extends Screen {
 				|| inputManager.isKeyDown(KeyEvent.VK_W)) {
 			this.pauseSelection = this.pauseSelection.previous();
 			this.pauseSelectionCooldown.reset();
+			playSfx(Sound.MENU_MOVE);
 		} else if (inputManager.isKeyDown(KeyEvent.VK_DOWN)
 				|| inputManager.isKeyDown(KeyEvent.VK_S)) {
 			this.pauseSelection = this.pauseSelection.next();
 			this.pauseSelectionCooldown.reset();
+			playSfx(Sound.MENU_MOVE);
 		} else if (inputManager.isKeyDown(KeyEvent.VK_LEFT)
             	|| inputManager.isKeyDown(KeyEvent.VK_A)) {
         	adjustPauseVolume(-VOLUME_STEP);
@@ -860,6 +866,8 @@ public class GameScreen extends Screen {
     	int percent = Math.max(0, Math.min(100,
             	Math.round(manager.getVolume(category) * 100f) + delta));
     	manager.setVolume(category, percent / 100f);
+		// Preview: also lets the player hear the new SFX volume.
+		playSfx(Sound.MENU_MOVE);
 	}
 
 	/** @return Bar fill (0-100) for each pause option, or -1 for no bar. */
@@ -878,6 +886,7 @@ public class GameScreen extends Screen {
 	 * Carries out whichever pause menu option the cursor was on.
 	 */
 	private void confirmPauseSelection() {
+		playSfx(Sound.MENU_SELECT);
 		switch (this.pauseSelection) {
 			case RESUME:
 				this.paused = false;
