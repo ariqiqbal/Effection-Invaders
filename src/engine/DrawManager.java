@@ -194,10 +194,10 @@ public final class DrawManager {
 	public void initDrawing(final Screen screen) {
 
 		if (fontRegular == null) {
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+			fontRegular = GameFonts.regular(14f);
 		}
 		if (fontBig == null) {
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
+			fontBig = GameFonts.regular(14f);
 		}
 		if (fontSelected == null) {
 			fontSelected = fontRegular;
