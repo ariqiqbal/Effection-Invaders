@@ -193,6 +193,7 @@ public final class SoundManager {
 			backend.setBgmVolume(muted ? 0.0f : clamped);
 		} else {
 			sfxVolume = clamped;
+			backend.setSfxVolume(muted ? 0.0f : clamped);
 		}
 	}
 

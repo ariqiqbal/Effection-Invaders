@@ -61,6 +61,15 @@ public interface AudioBackend {
 	 *            Volume between 0.0 and 1.0.
 	 */
 	void setBgmVolume(float volume);
+	
+	/**
+	 * Changes the volume of the sound effects, including any that are
+	 * still playing.
+	 *
+	 * @param volume
+	 *            Volume between 0.0 and 1.0.
+	 */
+	void setSfxVolume(float volume);
 
 	/**
 	 * Releases all audio resources. The backend is unusable afterwards.

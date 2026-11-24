@@ -26,6 +26,8 @@ import engine.achievement.Achievement;
 import engine.currency.CoinDropManager;
 import engine.currency.CurrencyManager;
 import engine.currency.PurchaseManager;
+import engine.soundEngine.Sound;
+import engine.soundEngine.SoundManager;
 import entity.Bullet;
 import entity.BulletPool;
 import entity.Bunker;
@@ -112,6 +114,8 @@ public class GameScreen extends Screen {
 	private static final int PAUSE_KEY_DEBOUNCE = 200;
 	/** Minimum time between two pause-menu cursor moves. */
 	private static final int PAUSE_SELECTION_DEBOUNCE = 200;
+	/** Percentage points a volume changes per key press. */
+	private static final int VOLUME_STEP = 10;
 
 	/**
 	 * Options listed in the pause menu, in the order they are drawn.
@@ -122,6 +126,10 @@ public class GameScreen extends Screen {
 		/** Restarts the current level from the beginning. */
 		RESTART("Restart"),
 		/** Ends the run and returns to the score / main menu flow. */
+		/** Background music volume, changed with left / right. */
+		BGM_VOLUME("BGM Volume"),
+		/** Sound effects volume, changed with left / right. */
+		SFX_VOLUME("SFX Volume"),
 		QUIT("Quit to menu");
 
 		/** Text drawn for this option. */
@@ -282,6 +290,8 @@ public class GameScreen extends Screen {
 	private Cooldown pauseSelectionCooldown;
 	/** Option the cursor is on in the pause menu. */
 	private PauseOption pauseSelection;
+	/** Whether the mouse button was down last frame, to detect new clicks. */
+	private boolean pauseMouseWasDown;
 	/** Score the level started with, restored by "Restart". */
 	private final int initialScore;
 	/** Lives the level started with (bonus life included), restored by
@@ -409,6 +419,8 @@ public class GameScreen extends Screen {
 		this.pauseKeyCooldown = Core.getCooldown(PAUSE_KEY_DEBOUNCE);
 		this.pauseSelectionCooldown = Core.getCooldown(PAUSE_SELECTION_DEBOUNCE);
 		this.pauseSelection = PauseOption.RESUME;
+		// Swallow a click held while pausing/resuming.
+		this.pauseMouseWasDown = inputManager.isMousePressed();
 
 		// Item System (Team CS): level 1 starts a new run, later levels keep it.
 		this.items = ItemSystem.forLevel(this.level);
@@ -478,6 +490,7 @@ public class GameScreen extends Screen {
 				&& this.pauseKeyCooldown.checkFinished()) {
 			this.paused = !this.paused;
 			this.pauseKeyCooldown.reset();
+			playPauseToggleSound();
 			// Ghost Trail starts fresh after a pause. AUTHORED BY: VFX TEAM (Effection)
 			if (this.ghostTrail != null)
 				this.ghostTrail.clear();
@@ -779,6 +792,37 @@ public class GameScreen extends Screen {
 	 * Handles cursor movement and selection while the pause menu is open.
 	 */
 	private void updatePauseMenu() {
+		 // A click counts once, on the frame the button goes down.
+    	boolean mouseDown = inputManager.isMousePressed();
+    	boolean clicked = mouseDown && !this.pauseMouseWasDown;
+    	this.pauseMouseWasDown = mouseDown;
+
+    	// Mouse: hover moves the cursor, a click selects, like the main
+    	// menu. Pressing on a volume bar sets that volume (dragging too).
+    	int row = drawManager.pauseRowAt(this, pauseBarPercents(),
+            	inputManager.getMouseY());
+    	if (inputManager.isMouseMoved() && row >= 0
+				&& PauseOption.values()[row] != this.pauseSelection) {
+			this.pauseSelection = PauseOption.values()[row];
+			playSfx(Sound.MENU_MOVE);
+		}
+    	if (row >= 0 && mouseDown) {
+        	PauseOption hovered = PauseOption.values()[row];
+        	Sound.Category category = volumeCategory(hovered);
+        	if (category != null) {
+            	this.pauseSelection = hovered;
+            	int percent = drawManager.pauseBarPercentAt(this,
+                    	inputManager.getMouseX());
+            	if (percent >= 0)
+                	SoundManager.getInstance().setVolume(category,
+                        	percent / 100f);
+        	} else if (clicked) {
+            	this.pauseSelection = hovered;
+            	this.pauseSelectionCooldown.reset();
+            	confirmPauseSelection();
+            	return;
+        	}
+    	}
 		if (!this.pauseSelectionCooldown.checkFinished())
 			return;
 
@@ -786,20 +830,75 @@ public class GameScreen extends Screen {
 				|| inputManager.isKeyDown(KeyEvent.VK_W)) {
 			this.pauseSelection = this.pauseSelection.previous();
 			this.pauseSelectionCooldown.reset();
+			playSfx(Sound.MENU_MOVE);
 		} else if (inputManager.isKeyDown(KeyEvent.VK_DOWN)
 				|| inputManager.isKeyDown(KeyEvent.VK_S)) {
 			this.pauseSelection = this.pauseSelection.next();
 			this.pauseSelectionCooldown.reset();
+			playSfx(Sound.MENU_MOVE);
+		} else if (inputManager.isKeyDown(KeyEvent.VK_LEFT)
+            	|| inputManager.isKeyDown(KeyEvent.VK_A)) {
+        	adjustPauseVolume(-VOLUME_STEP);
+        	this.pauseSelectionCooldown.reset();
+    	} else if (inputManager.isKeyDown(KeyEvent.VK_RIGHT)
+           		|| inputManager.isKeyDown(KeyEvent.VK_D)) {
+        	adjustPauseVolume(VOLUME_STEP);
+        	this.pauseSelectionCooldown.reset();
 		} else if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
 			this.pauseSelectionCooldown.reset();
 			confirmPauseSelection();
 		}
 	}
+	/** @return Sound category the option controls, or null if not a volume row. */
+	private Sound.Category volumeCategory(final PauseOption option) {
+    	switch (option) {
+        	case BGM_VOLUME: return Sound.Category.BGM;
+        	case SFX_VOLUME: return Sound.Category.SFX;
+        	default:         return null;
+   		}
+	}
+		/**
+	 * Changes the volume of the selected volume row by one step, kept
+	 * between 0% and 100%, and plays a short preview sound.
+	 *
+	 * @param delta
+	 *            Change in percent, e.g. -10 or +10.
+	 */
+	private void adjustPauseVolume(final int delta) {
+    	Sound.Category category = volumeCategory(this.pauseSelection);
+    	if (category == null)
+        	return;
+    	SoundManager manager = SoundManager.getInstance();
+    	int percent = Math.max(0, Math.min(100,
+            	Math.round(manager.getVolume(category) * 100f) + delta));
+    	manager.setVolume(category, percent / 100f);
+		// Preview: also lets the player hear the new SFX volume.
+		playSfx(Sound.MENU_MOVE);
+	}
 
+	/** @return Bar fill (0-100) for each pause option, or -1 for no bar. */
+	private int[] pauseBarPercents() {
+    	PauseOption[] values = PauseOption.values();
+    	int[] percents = new int[values.length];
+    	for (int i = 0; i < values.length; i++) {
+        	Sound.Category category = volumeCategory(values[i]);
+        	percents[i] = category == null ? -1 : Math.round(
+                	SoundManager.getInstance().getVolume(category) * 100f);
+    	}
+    	return percents;
+	}
+		/**
+	 * Plays the select sound when the pause menu opens and the back sound
+	 * when it closes.
+	 */
+	private void playPauseToggleSound() {
+		playSfx(this.paused ? Sound.MENU_SELECT : Sound.MENU_CANCEL);
+	}
 	/**
 	 * Carries out whichever pause menu option the cursor was on.
 	 */
 	private void confirmPauseSelection() {
+		playSfx(Sound.MENU_SELECT);
 		switch (this.pauseSelection) {
 			case RESUME:
 				this.paused = false;
@@ -937,13 +1036,18 @@ if (this.midBoss != null) {
 		drawManager.drawGlitch(this, this.glitch);
 
 		if (this.paused) {
-			String[] options = { PauseOption.RESUME.getLabel(),
-					PauseOption.RESTART.getLabel(),
-					PauseOption.QUIT.getLabel() };
-			drawManager.drawPauseMenu(this, options,
-					this.pauseSelection.ordinal());
-			drawManager.drawKeyHints(this,
-					"w+s / arrows to move, space to select");
+			PauseOption[] values = PauseOption.values();
+    		String[] options = new String[values.length];
+    		int[] bars = pauseBarPercents();
+    		for (int i = 0; i < values.length; i++) {
+        		options[i] = values[i].getLabel();
+        		if (bars[i] >= 0)
+            		options[i] += ": " + bars[i] + "%";
+    		}
+    		drawManager.drawPauseMenu(this, options, bars,
+            		this.pauseSelection.ordinal());
+    		drawManager.drawKeyHints(this,
+          	"w+s / arrows to move, a+d / left-right for volume");
 		}
 
 		// Countdown to game start (skipped while paused, so the pause menu

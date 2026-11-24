@@ -147,12 +147,15 @@ public final class InputManager implements KeyListener, MouseMotionListener, Mou
 		return moved;
 	}
 	/**
-	 * Does nothing.
+	 * Keeps the cursor position up to date while a mouse button is held,
+	 * so dragging (e.g. a volume bar) follows the cursor.
 	 * 
 	 * @param e Mouse event.
 	 */
 	@Override
 	public void mouseDragged(final MouseEvent e) {
+		mouseX = e.getX();
+		mouseY = e.getY();
 	}
 	/**
 	 * Does nothing.
