@@ -490,7 +490,7 @@ public class GameScreen extends Screen {
 				&& this.pauseKeyCooldown.checkFinished()) {
 			this.paused = !this.paused;
 			this.pauseKeyCooldown.reset();
-			playSfx(this.paused ? Sound.MENU_SELECT : Sound.MENU_CANCEL);
+			playPauseToggleSound();
 			// Ghost Trail starts fresh after a pause. AUTHORED BY: VFX TEAM (Effection)
 			if (this.ghostTrail != null)
 				this.ghostTrail.clear();
@@ -881,7 +881,13 @@ public class GameScreen extends Screen {
     	}
     	return percents;
 	}
-
+		/**
+	 * Plays the select sound when the pause menu opens and the back sound
+	 * when it closes.
+	 */
+	private void playPauseToggleSound() {
+		playSfx(this.paused ? Sound.MENU_SELECT : Sound.MENU_CANCEL);
+	}
 	/**
 	 * Carries out whichever pause menu option the cursor was on.
 	 */
