@@ -24,8 +24,10 @@ public class ProfileScreen extends Screen {
 	private String name = "";
 	/** Whether Enter was already held on the previous update. */
 	private boolean enterWasDown;
-    /** When the name was saved, or 0 while the player is still typing. */
+    /** When Enter confirmed the name, or 0 while the player is still typing. */
 	private long savedAt;
+	/** Whether the name was written to the save file. */
+	private boolean saved;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -71,7 +73,8 @@ public class ProfileScreen extends Screen {
 
 		boolean enterDown = this.inputManager.isKeyDown(KeyEvent.VK_ENTER);
 		if (enterDown && !this.enterWasDown && !this.name.isEmpty()) {
-			if (!Core.getFileManager().savePlayerName(this.name))
+			this.saved = Core.getFileManager().savePlayerName(this.name);
+			if (!this.saved)
 				this.logger.warning("Couldn't save the player name.");
 			this.savedAt = System.currentTimeMillis();
 		}
@@ -109,7 +112,7 @@ public class ProfileScreen extends Screen {
 		drawManager.initDrawing(this);
         drawManager.drawStarfield(this, this.starfield);
 		if (this.savedAt > 0)
-			drawManager.drawProfileSaved(this, this.name);
+			drawManager.drawProfileSaved(this, this.name, this.saved);
 		else
 			drawManager.drawPlayerProfile(this, this.name, cursorOn);
 		drawManager.completeDrawing(this);

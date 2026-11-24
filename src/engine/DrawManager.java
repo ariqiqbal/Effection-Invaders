@@ -1282,23 +1282,34 @@ public final class DrawManager {
 	}
 
 	/**
-	 * Draws the message shown after the player's name is saved (WBS 3.5.7).
+	 * Draws the message shown after the player confirms their name
+	 * (WBS 3.5.7): "PROFILE SAVED", or a red warning if the save failed.
 	 * AUTHORED BY: VFX TEAM (Effection)
 	 *
 	 * @param screen
 	 *            Screen to draw on.
 	 * @param name
-	 *            Name that was saved.
+	 *            Name the player entered.
+	 * @param saved
+	 *            Whether the name was written to the save file.
 	 */
-	public void drawProfileSaved(final Screen screen, final String name) {
+	public void drawProfileSaved(final Screen screen, final String name,final boolean saved) {
 		int height = screen.getHeight();
 		drawTitle(screen);
 		backBufferGraphics.setColor(Color.WHITE);
 		drawCenteredRegularString(screen, "WELCOME,", height / 2);
 		backBufferGraphics.setColor(Color.GREEN);
 		drawCenteredBigString(screen, name + "!", height / 2 + 45);
-		backBufferGraphics.setColor(Color.GRAY);
-		drawCenteredRegularString(screen, "PROFILE SAVED", height / 2 + 90);
+		if (saved) {
+			backBufferGraphics.setColor(Color.GRAY);
+			drawCenteredRegularString(screen, "PROFILE SAVED", height / 2 + 90);
+		} else {
+			backBufferGraphics.setColor(Color.RED);
+			drawCenteredRegularString(screen, "NAME NOT SAVED", height / 2 + 90);
+			backBufferGraphics.setColor(Color.GRAY);
+			drawCenteredRegularString(screen, "WE WILL ASK AGAIN NEXT TIME",
+					height / 2 + 115);
+		}
 		backBufferGraphics.setColor(Color.DARK_GRAY);
 		drawCenteredRegularString(screen, "STARTING...", height - 30);
 	}
