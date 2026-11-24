@@ -10,6 +10,13 @@ on:
 permissions:
   contents: read
 
+# "shell: bash" adds -o pipefail, so "script | tee log" fails when the
+# script fails. Without it the tee exit code (0) hides failed tests and
+# a failed complexity check.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -66,8 +73,10 @@ jobs:
             echo "::error::The game threw an exception while starting. See the log above."
             exit 1
           fi
-          if ! grep -q "title screen" game.log; then
-            echo "::error::The game never reached the title screen."
+          # First launch (no save.txt) opens the player profile screen (VFX-98)
+          # instead of the title screen. Both mean the game started.
+          if ! grep -qE "title screen|player profile screen" game.log; then
+            echo "::error::The game never reached the title or profile screen."
             exit 1
           fi
           echo "Reached the title screen with no exceptions."

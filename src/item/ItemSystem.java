@@ -57,6 +57,8 @@ public final class ItemSystem {
     private long lastUpdateNanos = -1;
     /** Shared game logger, like the other systems use. */
     private final Logger logger = Core.getLogger();
+    /** Pixel icons for item drops and the item HUD (WBS 3.6.1-3.6.3). */
+    private final ItemIcons icons = new ItemIcons();
     /** Short message for the player about the last item action, and when it was set. */
     private String notice;
     private long noticeTime;
@@ -315,6 +317,9 @@ public final class ItemSystem {
         for (DropView drop : api.getView().drops) {
             int x = (int) drop.bounds.x, y = (int) drop.bounds.y;
             int w = (int) drop.bounds.width, h = (int) drop.bounds.height;
+            // 3.6.2: draw the item's hexagon icon; the hitbox (drop.bounds) is unchanged
+            if (icons.drawCentered(graphics, drop.item.iconKey, x, y, w, h)) continue;
+            // 3.6.3 fallback: missing icon file -> old letter box
             graphics.setColor(colorOf(drop.item.effectKind));
             graphics.fillRect(x, y, w, h);
             graphics.setColor(Color.BLACK);

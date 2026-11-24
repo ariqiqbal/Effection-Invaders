@@ -52,15 +52,12 @@ public final class DrawManager {
 	private static Graphics backBufferGraphics;
 	/** Buffer image. */
 	private static BufferedImage backBuffer;
-	/** Top of the item panel, right below the HUD line (Team CS). */
-	private static final int ITEM_PANEL_TOP = 43;
-	private static final int ITEM_SLOT_HEIGHT = 16;
-	/** Item panel font size: small and fixed so the panel fits one line. */
-	private static final float ITEM_FONT_SIZE = 9f;
 	/** Item notice baseline, measured up from the bottom of the screen. */
 	private static final int ITEM_NOTICE_BOTTOM_OFFSET = 60;
 	/** The shield bubble blinks during this many last milliseconds. */
 	private static final long SHIELD_BLINK_MILLIS = 2000;
+	/** Item HUD strip: slots and ring timers (VFX Team, WBS 3.6.4-3.6.5). */
+	private final item.ItemHud itemHud = new item.ItemHud();
 	/** Current world offset X (screen shake). */
 	private static int worldOffsetX;
 	/** Current world offset Y (screen shake). */
@@ -475,10 +472,10 @@ public final class DrawManager {
 	}
 
 	/**
-	 * Draws the item panel right below the HUD line (Team CS - Item System):
-	 * inventory slots on the left, each with the number key that uses it,
-	 * and running effects on the right with stacks or seconds left. The
-	 * latest item notice is shown above the player ship.
+	 * Draws the item panel right below the HUD line: inventory slots with
+	 * key, icon and name on the left, and a ring timer per running effect
+	 * on the right (ItemHud, VFX Team). The latest item notice is shown
+	 * above the player ship (Team CS - Item System).
 	 *
 	 * @param screen
 	 *            Screen to draw on.
@@ -486,52 +483,8 @@ public final class DrawManager {
 	 *            Item system of the current run.
 	 */
 	public void drawItemHud(final Screen screen, final ItemSystem items) {
-		ItemAPI.View view = items.api().getView();
-		// Small fixed font with two-letter labels, so four slots and every
-		// effect fit one line even with the wide pixel font.
-		Font font = fontRegular.deriveFont(ITEM_FONT_SIZE);
-		FontMetrics metrics = backBufferGraphics.getFontMetrics(font);
-		backBufferGraphics.setFont(font);
-		int baseline = ITEM_PANEL_TOP + ITEM_SLOT_HEIGHT - 4;
-		int boxWidth = metrics.stringWidth("WW") + 8;
-
-		// Slots: "1 [SH]" ... an empty slot is a dark box.
-		int x = 6;
-		for (int i = 0; i < view.slots.size(); i++) {
-			ItemAPI.ItemInfo item = view.slots.get(i);
-			backBufferGraphics.setColor(Color.GRAY);
-			backBufferGraphics.drawString(Integer.toString(i + 1), x, baseline);
-			x += metrics.stringWidth("0") + 3;
-			backBufferGraphics.setColor(item == null ? Color.DARK_GRAY
-					: ItemSystem.colorOf(item.effectKind));
-			backBufferGraphics.drawRect(x, ITEM_PANEL_TOP, boxWidth,
-					ITEM_SLOT_HEIGHT);
-			if (item != null) {
-				String label = shortItemName(item.effectKind);
-				backBufferGraphics.drawString(label, x + (boxWidth
-						- metrics.stringWidth(label)) / 2, baseline);
-			}
-			x += boxWidth + 6;
-		}
-
-		// Effects, right-aligned and compact: "RFx2 SH8s". The equipped item is
-		// not listed here; the countdown hint names it.
-		int right = screen.getWidth() - 6;
-		for (int i = view.effects.size() - 1; i >= 0; i--) {
-			ItemAPI.EffectView effect = view.effects.get(i);
-			if (effect.item.activationMode == ItemAPI.ActivationMode.EQUIPPED)
-				continue;
-			String label = shortItemName(effect.item.effectKind);
-			if (effect.stacks != null)
-				label += "x" + effect.stacks;
-			else if (effect.remainingMillis != null)
-				label += (effect.remainingMillis + 999) / 1000 + "s";
-			right -= metrics.stringWidth(label);
-			backBufferGraphics.setColor(ItemSystem
-					.colorOf(effect.item.effectKind));
-			backBufferGraphics.drawString(label, right, baseline);
-			right -= 8;
-		}
+		itemHud.draw((Graphics2D) backBufferGraphics, items.api().getView(),
+				screen.getWidth(), fontRegular, System.currentTimeMillis());
 
 		String notice = items.getNotice();
 		if (notice != null) {
@@ -562,32 +515,6 @@ public final class DrawManager {
 		if (equipped != null)
 			drawCenteredRegularString(screen, "Equipped: " + equipped.displayName,
 					screen.getHeight() * 2 / 3 + fontRegularMetrics.getHeight() * 2);
-	}
-
-	/**
-	 * Short label for a running item effect in the HUD.
-	 *
-	 * @param kind
-	 *            Effect kind.
-	 * @return Two-letter label.
-	 */
-	private static String shortItemName(final ItemAPI.EffectKind kind) {
-		switch (kind) {
-			case RAPID_FIRE:
-				return "RF";
-			case BULLET_SPEED:
-				return "BS";
-			case SHIELD:
-				return "SH";
-			case FREEZE:
-				return "FZ";
-			case BOOST:
-				return "BO";
-			case SCORE_BOOST:
-				return "SC";
-			default:
-				return kind.name();
-		}
 	}
 
 	/**
