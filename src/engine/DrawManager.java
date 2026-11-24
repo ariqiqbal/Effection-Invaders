@@ -1766,10 +1766,8 @@ public final class DrawManager {
 	 * @return Small version of the regular game font.
 	 */
 	private static Font smallFont() {
-		if (fontSmall == null
-				|| !fontSmall.getFamily().equals(fontRegular.getFamily()))
-			fontSmall = fontRegular.deriveFont(SMALL_FONT_SIZE);
-		return fontSmall;
+		return
+	GameFonts.regular(SMALL_FONT_SIZE);
 	}
 
 	/**
