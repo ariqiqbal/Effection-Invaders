@@ -857,7 +857,13 @@ public class GameScreen extends Screen {
         	default:         return null;
    		}
 	}
-
+		/**
+	 * Changes the volume of the selected volume row by one step, kept
+	 * between 0% and 100%, and plays a short preview sound.
+	 *
+	 * @param delta
+	 *            Change in percent, e.g. -10 or +10.
+	 */
 	private void adjustPauseVolume(final int delta) {
     	Sound.Category category = volumeCategory(this.pauseSelection);
     	if (category == null)
