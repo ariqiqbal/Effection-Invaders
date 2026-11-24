@@ -150,64 +150,11 @@ public final class DrawManager {
 		logger = Core.getLogger();
 		logger.info("Started loading resources.");
 
-		try {
-			spriteMap = new LinkedHashMap<SpriteType, boolean[][]>();
-
-			// Order must match res/graphics exactly. Keep the same groups in
-			// both files, and add a new sprite to the end of its team's group.
-
-			// Base game
-			spriteMap.put(SpriteType.Ship, new boolean[13][8]);
-			spriteMap.put(SpriteType.ShipDestroyed, new boolean[13][8]);
-			spriteMap.put(SpriteType.Bullet, new boolean[3][5]);
-			spriteMap.put(SpriteType.EnemyBullet, new boolean[3][5]);
-			spriteMap.put(SpriteType.EnemyShipA1, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipA2, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipB1, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipB2, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipC1, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipC2, new boolean[12][8]);
-			spriteMap.put(SpriteType.EnemyShipSpecial, new boolean[16][7]);
-			spriteMap.put(SpriteType.Explosion, new boolean[13][7]);
-
-			// Player ships (A1)
-			spriteMap.put(SpriteType.ShipFastMove, new boolean[13][8]);
-			spriteMap.put(SpriteType.ShipTwoWay, new boolean[13][8]);
-			spriteMap.put(SpriteType.ShipFastAttack, new boolean[13][8]);
-			spriteMap.put(SpriteType.ShipBigBullet, new boolean[13][8]);
-
-			// Achievements (Mantis)
-			spriteMap.put(SpriteType.FirstFlight, new boolean[11][8]);
-			spriteMap.put(SpriteType.FleetMaster, new boolean[23][23]);
-			spriteMap.put(SpriteType.Weakestship, new boolean[11][11]);
-			spriteMap.put(SpriteType.InfinityVoid, new boolean[11][11]);
-			spriteMap.put(SpriteType.BossKill, new boolean[11][11]);
-			spriteMap.put(SpriteType.Hunter, new boolean[13][12]);
-			spriteMap.put(SpriteType.Trophy, new boolean[11][8]);
-			spriteMap.put(SpriteType.Accuracytarget, new boolean[11][11]);
-            spriteMap.put(SpriteType.Looter, new boolean[11][11]);
-			spriteMap.put(SpriteType.ItemCol, new boolean[12][12]);
-			spriteMap.put(SpriteType.MidBoss1, new boolean[16][10]);
-			spriteMap.put(SpriteType.MidBoss2, new boolean[16][10]);
-			spriteMap.put(SpriteType.FinalBoss1, new boolean[24][16]);
-			spriteMap.put(SpriteType.FinalBoss2, new boolean[24][16]);
-
-			fileManager.loadSprite(spriteMap);
-			logger.info("Finished loading the sprites.");
-
-			// Font loading.
-			fontRegular = fileManager.loadFont(14f);
-			fontBig = fileManager.loadFont(24f);
-			logger.info("Finished loading the fonts.");
-
-		} catch (IOException e) {
-			logger.warning("Loading failed: " + e.getMessage());
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
-		} catch (FontFormatException e) {
-			logger.warning("Font formating failed.");
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
+		GameFonts (Silkscreen, with fallbacks)
+		fontRegular = GameFonts.regular(14f);
+		fontBig = GameFonts.regular(24f);
+		if (GameFonts.isUsingFallback()) {
+			logger.warning("Silkscreen not found, using the fallback font.");
 		}
 
 		// Derived outside the try so it is set on the fallback path too.
