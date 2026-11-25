@@ -562,6 +562,24 @@ public final class DrawManager {
 		backBufferGraphics.drawString(balanceString, startX + iconSize
 				+ iconTextGap, positionY);
 	}
+	/** in-game coin balance, row 2, left half of the right column. */
+	public void drawHudCoins(final Screen screen, final int coins) {
+		final int iconSize = 10;
+		final int iconTextGap = 4;
+		HudLayout hud = new HudLayout(screen.getWidth());
+		int x = hud.columnStart(2);
+		int y = HudLayout.ROW2_BASELINE;
+		int maxTextWidth = hud.columnWidth() / 2 - iconSize - iconTextGap;
+
+		String value = Integer.toString(coins);
+		Font font = TextFit.shrinkToFit(UiFont.HUD.font(), value, maxTextWidth);
+
+		backBufferGraphics.setColor(Color.YELLOW);
+		backBufferGraphics.fillOval(x, y - iconSize + 1, iconSize, iconSize);
+		backBufferGraphics.setFont(font);
+		backBufferGraphics.setColor(Color.WHITE);
+		backBufferGraphics.drawString(value, x + iconSize + iconTextGap, y);
+	}
 
 	/**
 	 * Draws a diamond balance as a small diamond icon followed by the
@@ -687,22 +705,45 @@ public final class DrawManager {
 	 *            Current score.
 	 */
 	public void drawScore(final Screen screen, final int score) {
-		int textY = 25;
 
-		backBufferGraphics.setFont(fontRegular);
-		String label = "SCORE";
-		String scoreString = Integer.toString(score);
+		HudLayout hud = new HudLayout(screen.getWidth());
+		String value = String.format("%05d", score); 
+		int w = labelValueWidth("SCORE", value, hud.columnWidth());
+		drawLabelValue("SCORE", value, Color.GREEN, hud.rightX(w),
+				HudLayout.ROW1_BASELINE, hud.columnWidth());
+	}
+	/** HUD bar colours. */
+	private static final Color HUD_BG = new Color(0, 0, 0, 170);
+	private static final Color HUD_LINE = new Color(0, 255, 90, 120);
 
-		int scoreWidth = fontRegularMetrics.stringWidth(scoreString);
-		int labelWidth = fontRegularMetrics.stringWidth(label);
-		int scoreX = screen.getWidth() - SCORE_ZONE_MARGIN - scoreWidth;
-		int labelX = scoreX - SCORE_LABEL_GAP - labelWidth;
+	/** dark bar + separator behind the HUD. */
+	public void drawHudBackground(final Screen screen) {
+		backBufferGraphics.setColor(HUD_BG);
+		backBufferGraphics.fillRect(0, 0, screen.getWidth(), HudLayout.SEPARATOR_Y);
+	}
 
-		backBufferGraphics.setColor(Color.WHITE);
-		backBufferGraphics.drawString(label, labelX, textY);
+    /** small grey label + fitted value. Returns the width used. */
+	private int drawLabelValue(final String label, final String value, final Color valueColour,
+                               final int x, final int y, final int maxWidth) {
+		Font labelFont = UiFont.HUD_LABEL.font();
+		int labelW = TextFit.width(labelFont, label);
+		Font valueFont = TextFit.shrinkToFit(UiFont.HUD.font(), value,
+            maxWidth - labelW - HudLayout.LABEL_GAP);
+		backBufferGraphics.setFont(labelFont);
+		backBufferGraphics.setColor(Color.GRAY);
+		backBufferGraphics.drawString(label, x, y);
+		backBufferGraphics.setFont(valueFont);
+		backBufferGraphics.setColor(valueColour);
+		backBufferGraphics.drawString(value, x + labelW + HudLayout.LABEL_GAP, y);
+		return labelW + HudLayout.LABEL_GAP + TextFit.width(valueFont, value);
+	}
 
-		backBufferGraphics.setColor(Color.GREEN);
-		backBufferGraphics.drawString(scoreString, scoreX, textY);
+    /** width drawLabelValue will use (for right/centre alignment). */
+	private int labelValueWidth(final String label, final String value, final int maxWidth) {
+		int labelW = TextFit.width(UiFont.HUD_LABEL.font(), label);
+		Font valueFont = TextFit.shrinkToFit(UiFont.HUD.font(), value,
+				maxWidth - labelW - HudLayout.LABEL_GAP);
+		return labelW + HudLayout.LABEL_GAP + TextFit.width(valueFont, value);
 	}
 
 	/**
@@ -719,20 +760,18 @@ public final class DrawManager {
 	private static final int LIVES_ICON_SPACING = 35;
 
 	public void drawLives(final Screen screen, final int lives) {
-		backBufferGraphics.setFont(fontRegular);
-		backBufferGraphics.setColor(Color.WHITE);
-		backBufferGraphics.drawString("LIVES", 20, 25);
 
+		HudLayout hud = new HudLayout(screen.getWidth());
+		int x = hud.leftX();
+		x += drawLabelValue("LIVES", Integer.toString(lives), Color.WHITE,
+				x, HudLayout.ROW1_BASELINE, hud.columnWidth());
+
+		int maxIcons = Math.max(0, (hud.columnEnd(0) - x - 6) / LIVES_ICON_SPACING);
 		Ship dummyShip = new Ship(0, 0, Core.getSelectedShipType());
-		for (int i = 0; i < lives; i++)
-			drawEntity(dummyShip, 20 + LIVES_LABEL_WIDTH
-					+ LIVES_ICON_SPACING * i, 10);
-	}
-
-	/** Baseline Y of the top-centre level indicator, kept off y=25 so it
-	 * doesn't collide with the Currency team's coin balance, which is
-	 * also centred there. */
-	private static final int LEVEL_INDICATOR_Y = 14;
+		for (int i = 0; i < Math.min(lives, maxIcons); i++) {
+			drawEntity(dummyShip, x + 6 + LIVES_ICON_SPACING * i, 10);
+		}
+    }
 
 	/**
 	 * Draws the current wave/level number on screen, top-centre, so the
@@ -744,21 +783,11 @@ public final class DrawManager {
 	 *            Current game level.
 	 */
 	public void drawLevel(final Screen screen, final int level) {
-		String label = "LEVEL";
-		String valueString = Integer.toString(level);
-
-		backBufferGraphics.setFont(fontRegular);
-		int labelWidth = fontRegularMetrics.stringWidth(label);
-		int valueWidth = fontRegularMetrics.stringWidth(valueString);
-		int gap = 6;
-		int totalWidth = labelWidth + gap + valueWidth;
-		int labelX = (screen.getWidth() - totalWidth) / 2;
-		int valueX = labelX + labelWidth + gap;
-
-		backBufferGraphics.setColor(Color.WHITE);
-		backBufferGraphics.drawString(label, labelX, LEVEL_INDICATOR_Y);
-		backBufferGraphics.setColor(Color.GREEN);
-		backBufferGraphics.drawString(valueString, valueX, LEVEL_INDICATOR_Y);
+		HudLayout hud = new HudLayout(screen.getWidth());
+		String value = Integer.toString(level);
+		int w = labelValueWidth("LEVEL", value, hud.columnWidth());
+		drawLabelValue("LEVEL", value, Color.GREEN, hud.centreX(w),
+				HudLayout.ROW1_BASELINE, hud.columnWidth());
 	}
 	/** Y offset of the diamond counter below the score line. */
 	private static final int DIAMONDS_Y_OFFSET = 11;
@@ -780,22 +809,12 @@ public final class DrawManager {
 	 *            Current diamond balance to display.
 	 */
 	public void drawDiamonds(final Screen screen, final int diamonds) {
-		String valueString = Integer.toString(diamonds);
-		int textY = 25 + DIAMONDS_Y_OFFSET;
-		int startX = screen.getWidth() - 60;
-		int iconTop = textY - DIAMOND_ICON_SIZE + 1;
-
-		int[] xPoints = { startX + DIAMOND_ICON_SIZE / 2, startX + DIAMOND_ICON_SIZE,
-				startX + DIAMOND_ICON_SIZE / 2, startX };
-		int[] yPoints = { iconTop, iconTop + DIAMOND_ICON_SIZE / 2,
-				iconTop + DIAMOND_ICON_SIZE, iconTop + DIAMOND_ICON_SIZE / 2 };
-
-		backBufferGraphics.setColor(Color.CYAN);
-		backBufferGraphics.fillPolygon(xPoints, yPoints, 4);
-		backBufferGraphics.setFont(fontRegular);
-		backBufferGraphics.setColor(Color.WHITE);
-		backBufferGraphics.drawString(valueString, startX + DIAMOND_ICON_SIZE
-				+ DIAMOND_ICON_GAP, textY);
+		HudLayout hud = new HudLayout(screen.getWidth());
+		String value = Integer.toString(diamonds);
+		int half = hud.columnWidth() / 2;
+		int w = labelValueWidth("GEM", value, half);
+		drawLabelValue("GEM", value, Color.CYAN, hud.rightX(w),
+				HudLayout.ROW2_BASELINE, half);
 	}
 
 	/** Number of segments in a pause menu volume bar. */
@@ -1101,9 +1120,7 @@ public final class DrawManager {
 		int maxWidth = screen.getWidth() - 20;
 		int textWidth = metrics.stringWidth(hints);
 		if (textWidth > maxWidth) {
-			hintFont = fontRegular.deriveFont(
-					fontRegular.getSize2D() * maxWidth / textWidth);
-			metrics = backBufferGraphics.getFontMetrics(hintFont);
+			hintFont = TextFit.shrinkToFit(UiFont.HINT.font(), hints, screen.getWidth() - 20);
 		}
 		backBufferGraphics.setFont(hintFont);
 		backBufferGraphics.setColor(Color.GRAY);
