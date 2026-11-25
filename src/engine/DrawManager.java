@@ -9,6 +9,7 @@ import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -978,25 +979,42 @@ public final class DrawManager {
 	 * @param selected
 	 *            Item the cursor is on.
 	 */
-	public void drawMenu(final Screen screen, final MenuItem selected) {
-		for (MenuItem item : MenuItem.values()) {
-			int baseline = menuItemBaseline(screen, item.ordinal());
+	private static final Color MENU_BAR = new Color(0, 160, 60, 110);
+	private static final Color MENU_BAR_EDGE = new Color(0, 255, 90, 200);
 
+	public void drawMenu(final Screen screen, final MenuItem selected) {
+		
+		MenuItem[] items = MenuItem.values();
+		FontMetrics fm = backBufferGraphics.getFontMetrics(UiFont.MENU_SELECTED.font());
+
+		int widest = 0;
+		for (MenuItem item : items) {
+			widest = Math.max(widest, fm.stringWidth(item.getTitle()));
+		}
+		
+		for (int i = 0; i < items.length; i++) {
+			MenuItem item = items[i];
+			int y = menuItemBaseline(screen, i);   // same call as the old drawMenu
+			
 			if (item == selected) {
-				String text = "> " + item.getTitle() + " <";
-				backBufferGraphics.setColor(Color.GREEN);
-				backBufferGraphics.setFont(fontSelected);
-				backBufferGraphics.drawString(text, screen.getWidth() / 2
-						- fontSelectedMetrics.stringWidth(text) / 2, baseline);
-			} else {
-				if (!item.isEnabled())
-					backBufferGraphics.setColor(Color.DARK_GRAY);
-				else
-					backBufferGraphics.setColor(Color.WHITE);
-				drawCenteredRegularString(screen, item.getTitle(), baseline);
+				Rectangle bar = MenuLayout.highlight(screen.getWidth(), y, widest,
+                    fm.getAscent(), fm.getHeight());
+            backBufferGraphics.setColor(MENU_BAR);
+            backBufferGraphics.fillRect(bar.x, bar.y, bar.width, bar.height);
+            backBufferGraphics.setColor(MENU_BAR_EDGE);
+            backBufferGraphics.drawRect(bar.x, bar.y, bar.width - 1, bar.height - 1);
 			}
 		}
-	}
+
+        UiFont role = item == selected ? UiFont.MENU_SELECTED : UiFont.MENU;
+        Color colour = !item.isEnabled() ? Color.DARK_GRAY
+                : item == selected ? Color.GREEN : Color.WHITE;
+        backBufferGraphics.setFont(role.font());
+        backBufferGraphics.setColor(colour);
+        int w = backBufferGraphics.getFontMetrics().stringWidth(item.getTitle());
+        backBufferGraphics.drawString(item.getTitle(), (screen.getWidth() - w) / 2, y);
+    }
+}
 
 	/**
 	 * Finds the menu item drawn at a given height. Each item owns a full-width
@@ -1067,7 +1085,7 @@ public final class DrawManager {
 	 * @return Spacing, in pixels.
 	 */
 	private int menuItemSpacing() {
-		return fontRegularMetrics.getHeight() * 5 / 4;
+		return MenuLayout.spacing(fontRegularMetrics.getHeight());
 	}
 
 	/**

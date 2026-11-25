@@ -100,6 +100,14 @@ public enum MenuItem {
 		return step(1);
 	}
 
+	public MenuItem nextEnabled() {
+		MenuItem m = this.next();
+		while (!m.enabled && m != this) {
+			m = m.next();
+		}
+		return m;
+	}
+
 	/**
 	 * Item above this one.
 	 *
@@ -107,6 +115,14 @@ public enum MenuItem {
 	 */
 	public final MenuItem previous() {
 		return step(-1);
+	}
+
+	public MenuItem previousEnabled() {
+		MenuItem m = this.previous();
+		while (!m.enabled && m != this) {
+			m = m.previous();
+		}
+		return m;
 	}
 
 	/**

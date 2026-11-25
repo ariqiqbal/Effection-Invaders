@@ -3,8 +3,6 @@ package engine;
 import java.awt.Rectangle;
 
 /**
- * WBS 3.8.3 - Shared geometry for vertical menus.
- *
  * Drawing (DrawManager.drawMenu) and mouse hit-testing
  * (DrawManager.menuItemAt) both use these methods, so the highlighted row
  * and the clickable row are always the same.
