@@ -188,8 +188,11 @@ public final class Core {
 					gameState = offerCashOut(gameState, width, height);
 
 				} while (gameState.getLivesRemaining() > 0
-						&& gameState.getLevel() <= NUM_LEVELS);
+						&& gameState.getLevel() <= NUM_LEVELS);	
 
+                // Remember what this run earned before settling zeroes it, so
+				// the score screen can show the player what they kept.
+				final int diamondsKept = gameState.getPendingDiamonds();
 				// The run is over: gameplay music plays on the score screen.
 				SoundManager.getInstance().playBgm(Sound.BGM_GAME);
 				gameState = settlePendingDiamonds(gameState);
@@ -201,7 +204,8 @@ public final class Core {
 						+ gameState.getBulletsShot() + " bullets shot, "
 						+ gameState.getShipsDestroyed() + " ships destroyed, and "
                         + gameState.getCoinsCollected() + " coins collected. ");
-				currentScreen = new ScoreScreen(width, height, FPS, gameState);
+				currentScreen = new ScoreScreen(width, height, FPS, gameState,
+						diamondsKept);
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
 				break;

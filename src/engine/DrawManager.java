@@ -1388,6 +1388,30 @@ public final class DrawManager {
 		drawCenteredRegularString(screen, accuracyString, screen.getHeight()
 				/ height + fontRegularMetrics.getHeight() * 6);
 	}
+	
+	/**
+	 * Draws the diamonds the player earned and kept this run, as an extra
+	 * row under the results on the score screen. Nothing is drawn when no
+	 * diamonds were earned.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param diamonds
+	 *            Diamonds earned and kept this run.
+	 * @param isNewRecord
+	 *            True if the results are drawn higher up to make room for
+	 *            the name input (same layout rule as drawResults).
+	 */
+	public void drawDiamondsKept(final Screen screen, final int diamonds,
+			final boolean isNewRecord) {
+		if (diamonds <= 0)
+			return;
+		int height = isNewRecord ? 4 : 2;
+		backBufferGraphics.setColor(Color.CYAN);
+		drawCenteredRegularString(screen, "diamonds kept +" + diamonds,
+				screen.getHeight() / height + fontRegularMetrics.getHeight()
+						* 8);
+	}
 
 	/**
 	 * Draws interactive characters for name input.
