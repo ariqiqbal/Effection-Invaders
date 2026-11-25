@@ -1004,17 +1004,15 @@ public final class DrawManager {
             backBufferGraphics.setColor(MENU_BAR_EDGE);
             backBufferGraphics.drawRect(bar.x, bar.y, bar.width - 1, bar.height - 1);
 			}
+			
+			UiFont role = item == selected ? UiFont.MENU_SELECTED : UiFont.MENU;
+			Color colour = !item.isEnabled() ? Color.DARK_GRAY : item == selected ? Color.GREEN : Color.WHITE;
+			backBufferGraphics.setFont(role.font());
+			backBufferGraphics.setColor(colour);
+			int w = backBufferGraphics.getFontMetrics().stringWidth(item.getTitle());
+			backBufferGraphics.drawString(item.getTitle(), (screen.getWidth() - w) / 2, y);
 		}
-
-        UiFont role = item == selected ? UiFont.MENU_SELECTED : UiFont.MENU;
-        Color colour = !item.isEnabled() ? Color.DARK_GRAY
-                : item == selected ? Color.GREEN : Color.WHITE;
-        backBufferGraphics.setFont(role.font());
-        backBufferGraphics.setColor(colour);
-        int w = backBufferGraphics.getFontMetrics().stringWidth(item.getTitle());
-        backBufferGraphics.drawString(item.getTitle(), (screen.getWidth() - w) / 2, y);
-    }
-}
+	}
 
 	/**
 	 * Finds the menu item drawn at a given height. Each item owns a full-width
