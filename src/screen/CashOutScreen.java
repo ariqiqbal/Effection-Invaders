@@ -91,18 +91,17 @@ public class CashOutScreen extends Screen {
 			return;
 
 		if (escapeDown) {
-			// Bank what's been earned so far, then end the run.
-			DiamondManager.getInstance().addDiamonds(this.pendingDiamonds);
+			// End the run. Core banks the diamonds when the run is settled,
+			// so they are added to the balance in exactly one place.
 			this.cashedOut = true;
 			this.isRunning = false;
-			this.logger.info("Cashed out " + this.pendingDiamonds
-					+ " diamonds, balance: "
-					+ DiamondManager.getInstance().getDiamonds());
+			this.logger.info("Cashed out with " + this.pendingDiamonds
+					+ " diamonds earned this run.");
 		} else if (spaceDown) {
-			// Push on: diamonds stay pending, at risk.
+			// Push on: the diamonds are still kept if the player dies.
 			this.isRunning = false;
 			this.logger.info("Continuing with " + this.pendingDiamonds
-					+ " diamonds at risk.");
+					+ " diamonds earned so far.");
 		}
 	}
 

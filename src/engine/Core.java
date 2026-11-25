@@ -305,10 +305,11 @@ public final class Core {
 
 		if (!cashOutScreen.didCashOut())
 			return gameState;
-		// Diamonds were banked by the screen itself.
+		// Keep the pending diamonds on the state: settlePendingDiamonds banks
+		// them in one place, whichever way the run ends.
 		return new GameState(NUM_LEVELS + 1, gameState.getScore(),
 				gameState.getLivesRemaining(), gameState.getBulletsShot(),
-				gameState.getShipsDestroyed(), 0,
+				gameState.getShipsDestroyed(), gameState.getPendingDiamonds(),
 				gameState.getLevelsCompletedRun(), gameState.getCoinsCollected());
 	}
 
@@ -325,12 +326,11 @@ public final class Core {
 		int pending = gameState.getPendingDiamonds();
 		if (pending <= 0)
 			return gameState;
-		if (gameState.getLivesRemaining() > 0) {
-			DiamondManager.getInstance().addDiamonds(pending);
-			LOGGER.info("Run completed, banked " + pending + " diamonds.");
-		} else {
-			LOGGER.info("Run lost, " + pending + " pending diamonds forfeited.");
-		}
+		DiamondManager.getInstance().addDiamonds(pending);
+		LOGGER.info((gameState.getLivesRemaining() > 0
+				? "Run completed" : "Run lost") + ", banked " + pending
+				+ " diamonds, balance: "
+				+ DiamondManager.getInstance().getDiamonds());
 		return new GameState(gameState.getLevel(), gameState.getScore(),
 				gameState.getLivesRemaining(), gameState.getBulletsShot(),
 				gameState.getShipsDestroyed(), 0,
