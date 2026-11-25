@@ -19,7 +19,7 @@ public class GameState {
 	/** Ships destroyed until now. */
 	private int shipsDestroyed;
 	/** Diamonds earned so far this run but not yet cashed out (GoG -
-	 * Currency System). Lost if the run ends in death. */
+	 * Currency System). Banked when the run ends, even in death. */
 	private int pendingDiamonds;
 	/** Levels cleared alive during the current run. */
 	private int levelsCompletedRun;

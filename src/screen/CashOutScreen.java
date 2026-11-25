@@ -8,10 +8,10 @@ import engine.currency.DiamondManager;
 
 /**
  * Shown right after a level is cleared, when there is a next level to play
- * and diamonds are riding on the decision. This is the "push your luck"
- * choice that keeps diamonds from being handed out for free: the player
- * either banks the diamonds earned so far and ends the run, or risks them
- * all by continuing for a bigger payout on the next level.
+ * and diamonds were earned. The player either cashes out (ends the run
+ * now) or continues for a bigger payout on the next level. Diamonds are
+ * kept either way, even if the player later dies, so the screen only
+ * shows what the player will keep and never asks them to risk it.
  *
  * Opened directly by Core between levels, not from the main menu, so it
  * needs no MenuItem entry.

@@ -275,9 +275,11 @@ public final class Core {
 	}
 
 	/**
-	 * Between levels, lets the player bank pending diamonds and end the run,
-	 * or risk them on the next level (GoG - Currency System). Only shown
-	 * when there is a next level and something is at stake.
+	 * Between levels, lets the player cash out and end the run, or continue
+	 * to the next level for a bigger payout (GoG - Currency System). Only
+	 * shown when there is a next level and diamonds were earned. Diamonds
+	 * are kept either way: they are banked by settlePendingDiamonds when the
+	 * run ends, so this choice never puts them at risk.
 	 *
 	 * @param gameState
 	 *            State going into the next level.
@@ -286,8 +288,9 @@ public final class Core {
 	 * @param height
 	 *            Screen height.
 	 * @return The same state if the player continues; if they cash out, a
-	 *         state past the last level with no pending diamonds, which
-	 *         ends the game loop normally.
+	 *         state past the last level (diamonds still attached, to be
+	 *         banked by settlePendingDiamonds), which ends the game loop
+	 *         normally.
 	 */
 	private static GameState offerCashOut(final GameState gameState,
 			final int width, final int height) {
@@ -319,8 +322,9 @@ public final class Core {
 
 	/**
 	 * Settles diamonds still pending when a run ends (GoG - Currency
-	 * System). Clearing the final level banks them automatically, since
-	 * there is nothing left to risk them on; dying forfeits them.
+	 * System). Every run ends here, whether the player cashed out, cleared
+	 * the final level or died, and the diamonds earned are always banked:
+	 * dying no longer forfeits them.
 	 *
 	 * @param gameState
 	 *            State at the end of the run.
