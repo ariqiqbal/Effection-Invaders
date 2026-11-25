@@ -15,7 +15,7 @@ public final class MenuLayout {
     /** Horizontal padding of the highlight bar, in pixels. */
     public static final int BAR_PADDING_X = 14;
     /** Vertical padding of the highlight bar, in pixels. */
-    public static final int BAR_PADDING_Y = 3;
+    public static final int BAR_PADDING_Y = 1;
 
     private MenuLayout() {
     }

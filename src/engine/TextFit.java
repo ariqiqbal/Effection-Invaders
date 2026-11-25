@@ -4,6 +4,9 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Shrinks or trims text so it never runs off the screen.
@@ -63,5 +66,32 @@ public final class TextFit {
             }
         }
         return dots;
+    }
+        /**
+     * Splits {@code text} at {@code separator} into as few lines as needed so
+     * each line fits in {@code maxWidth}. A single part that is still too
+     * wide stays on its own line (draw it with shrinkToFit).
+     */
+    public static List<String> wrap(final Font font, final String text,
+                                    final int maxWidth, final String separator) {
+        List<String> out = new ArrayList<String>();
+        if (width(font, text) <= maxWidth) {
+            out.add(text);
+            return out;
+        }
+        String current = "";
+        for (String part : text.split(Pattern.quote(separator))) {
+            String next = current.isEmpty() ? part : current + separator + part;
+            if (!current.isEmpty() && width(font, next) > maxWidth) {
+                out.add(current);
+                current = part;
+            } else {
+                current = next;
+            }
+        }
+        if (!current.isEmpty()) {
+            out.add(current);
+        }
+        return out;
     }
 }

@@ -1093,7 +1093,12 @@ public final class DrawManager {
 	 * @return Baseline of the item's text.
 	 */
 	private int menuItemBaseline(final Screen screen, final int index) {
-		return screen.getHeight() / 2 + menuItemSpacing() * (index + 2);
+		int rows = MenuItem.values().length;
+		int lineHeight = fontRegularMetrics.getHeight();
+		int top = screen.getHeight() / 3 + lineHeight;     // just under the title
+		int bottom = screen.getHeight() - lineHeight * 3;  // just above the key hints
+		int spacing = Math.min(MenuLayout.spacing(lineHeight), (bottom - top) / rows);
+		return top + spacing * (index + 1);
 	}
 
 	/**
@@ -1114,19 +1119,27 @@ public final class DrawManager {
 	 * @param hints
 	 *            Keys to show, already worded for the current state.
 	 */
+	/** grey key hints at the bottom. Long lines wrap at " | ", "\n" forces a break. */
 	public void drawKeyHints(final Screen screen, final String hints) {
-		Font hintFont = fontRegular;
-		FontMetrics metrics = fontRegularMetrics;
 		int maxWidth = screen.getWidth() - 20;
-		int textWidth = metrics.stringWidth(hints);
-		if (textWidth > maxWidth) {
-			hintFont = TextFit.shrinkToFit(UiFont.HINT.font(), hints, screen.getWidth() - 20);
+		Font base = UiFont.HINT.font();
+
+		java.util.List<String> lines = new java.util.ArrayList<String>();
+		for (String line : hints.split("\n")) {
+			lines.addAll(TextFit.wrap(base, line, maxWidth, " | "));
 		}
-		backBufferGraphics.setFont(hintFont);
+
+		int lineHeight = TextFit.metrics(base).getHeight() + 2;
+		int y = screen.getHeight() - lineHeight;          // last line at the bottom
 		backBufferGraphics.setColor(Color.GRAY);
-		backBufferGraphics.drawString(hints,
-				(screen.getWidth() - metrics.stringWidth(hints)) / 2,
-				screen.getHeight() - fontRegularMetrics.getHeight() * 2);
+		for (int i = lines.size() - 1; i >= 0; i--) {     // draw bottom-up
+			String line = lines.get(i);
+			Font f = TextFit.shrinkToFit(base, line, maxWidth);
+			backBufferGraphics.setFont(f);
+			int w = backBufferGraphics.getFontMetrics().stringWidth(line);
+			backBufferGraphics.drawString(line, (screen.getWidth() - w) / 2, y);
+			y -= lineHeight;
+		}
 	}
 
 	/**
