@@ -122,56 +122,11 @@ public class CashOutScreen extends Screen {
 		this.drawManager.drawScreenTitle(this, "Level " + this.clearedLevel
 				+ " clear!");
 
-		this.drawManager.drawDiamondBalance(this, this.pendingDiamonds,
-				this.height / 3);
-		
-		this.drawManager.drawCenteredRegularString(this,
-				"Diamonds earned this run", this.height / 3 + 25);
-
-		this.drawManager.drawDiamondBalance(this, DiamondManager
-				.getInstance().getDiamonds(), this.height / 2);
-		this.drawManager.drawCenteredRegularString(this,
-				"Diamonds saved", this.height / 2 + 25);
-
-		drawRewardPreview(this.height / 2 + 60);
-		this.drawManager.drawCenteredRegularString(this,
-				"All diamonds are kept even if you lose",
-				this.height / 2 + 95);
-
-		this.drawManager.drawKeyHints(this, "esc cash out and end run");
-		this.drawManager.drawCenteredRegularString(this,
-				"space continue to level " + this.nextLevel, this.height - 45);
+		this.drawManager.drawCashOutChoice(this, this.pendingDiamonds,
+				DiamondManager.getInstance().getDiamonds(), this.nextLevel);
 
 		this.drawManager.completeDrawing(this);
 	}
 
-	/**
-	 * Calculates the total diamonds the player would have after clearing
- 	 * the next level, including the current diamond total and the next
- 	 * level's reward (level N is worth N).
-	 *
-	 * @return Pending diamonds if the next level is cleared.
-	 */
-	final int diamondsIfNextLevelCleared() {
-		return (int) Math.min(Integer.MAX_VALUE,
-				(long) this.pendingDiamonds + this.nextLevel);
-	}
-
-	/**
-	 * Displays the potential rewards for continuing, helping the player
- 	 * decide whether to proceed. Shows the next level's reward, the
- 	 * pending total if the player clears it, and whether that total
- 	 * would be banked automatically because it is the final level.
-	 *
-	 * @param positionY
-	 *            Y position of the first line.
-	 */
-	private void drawRewardPreview(final int positionY) {
-		this.drawManager.drawCenteredRegularString(this, "Clear level "
-				+ this.nextLevel + " for +" + this.nextLevel + " diamonds",
-				positionY);
-		String outcome = "Then " + diamondsIfNextLevelCleared() + " kept";
-		this.drawManager.drawCenteredRegularString(this, outcome,
-				positionY + 20);
-	}
+	
 }

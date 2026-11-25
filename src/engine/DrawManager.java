@@ -1388,7 +1388,7 @@ public final class DrawManager {
 		drawCenteredRegularString(screen, accuracyString, screen.getHeight()
 				/ height + fontRegularMetrics.getHeight() * 6);
 	}
-	
+
 	/**
 	 * Draws the diamonds the player earned and kept this run, as an extra
 	 * row under the results on the score screen. Nothing is drawn when no
@@ -1411,6 +1411,156 @@ public final class DrawManager {
 		drawCenteredRegularString(screen, "diamonds kept +" + diamonds,
 				screen.getHeight() / height + fontRegularMetrics.getHeight()
 						* 8);
+	}
+		/** Orange used for the "continue" panel on the cash-out screen. */
+	private static final Color CONTINUE_COLOR = new Color(255, 150, 30);
+	/** Green used for the "cash out" panel on the cash-out screen. */
+	private static final Color CASH_OUT_COLOR = new Color(40, 220, 60);
+
+	/**
+	 * Draws the two choices of the cash-out screen side by side: the left
+	 * panel (orange) shows the diamonds earned this run and the SPACE key to
+	 * continue; the right panel (green) shows the saved diamonds and the ESC
+	 * key to cash out. Both gems turn and bounce together while the player
+	 * decides. Diamonds are kept either way, so nothing here is "at risk".
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param earned
+	 *            Diamonds earned so far this run.
+	 * @param saved
+	 *            Diamonds already saved in the balance.
+	 * @param nextLevel
+	 *            Level the player would play if they continue.
+	 */
+	public void drawCashOutChoice(final Screen screen, final int earned,
+			final int saved, final int nextLevel) {
+		final int margin = 22;
+		final int gap = 14;
+		final int panelWidth = (screen.getWidth() - 2 * margin - gap) / 2;
+		final int top = screen.getHeight() / 5;
+		final int bottom = top + 300;
+
+		// Same turn and bounce for both gems.
+		double phase = (System.currentTimeMillis() % 1600L) / 1600.0
+				* 2 * Math.PI;
+		double turn = Math.max(0.15, Math.abs(Math.cos(phase)));
+		int bounce = (int) Math.round(Math.abs(Math.sin(phase)) * 5);
+
+		int leftX = margin;
+		int rightX = margin + panelWidth + gap;
+
+		drawChoicePanel(leftX, top, panelWidth, bottom - top, CONTINUE_COLOR,
+				"EARNED", earned, new Color(255, 200, 60), "CONTINUE", "SPACE",
+				true, "+" + nextLevel + " ON LEVEL " + nextLevel,
+				"KEPT EVEN IF YOU FAIL", turn, bounce);
+		drawChoicePanel(rightX, top, panelWidth, bottom - top, CASH_OUT_COLOR,
+				"SAVED", saved, Color.WHITE, "CASH OUT", "ESC", false,
+				"SAVE " + earned + ", TOTAL " + ((long) saved + earned),
+				"RUN ENDS NOW", turn, bounce);
+
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredAt("COINS AND SCORE ARE ALWAYS KEPT", smallFont(),
+				screen.getWidth() / 2, bottom + 40);
+	}
+
+	/**
+	 * Draws one panel of the cash-out screen: a framed box with a label on
+	 * its top border, a gem, the diamond amount, the action with its key
+	 * badge and two short lines of explanation.
+	 */
+	private void drawChoicePanel(final int x, final int y, final int width,
+			final int height, final Color color, final String tab,
+			final int amount, final Color amountColor, final String action,
+			final String key, final boolean keyFilled, final String line1,
+			final String line2, final double turn, final int bounce) {
+		final int centerX = x + width / 2;
+		Font small = smallFont();
+		FontMetrics smallMetrics = backBufferGraphics.getFontMetrics(small);
+
+		// Frame, with a gap in the top border for the label.
+		backBufferGraphics.setColor(color);
+		backBufferGraphics.drawRect(x, y, width, height);
+		int tabWidth = smallMetrics.stringWidth(tab) + 16;
+		backBufferGraphics.setColor(Color.BLACK);
+		backBufferGraphics.fillRect(centerX - tabWidth / 2, y - 3, tabWidth, 7);
+		backBufferGraphics.setColor(color);
+		drawCenteredAt(tab, small, centerX, y + 3);
+
+		drawGem(centerX, y + 52 - bounce, turn);
+
+		// Amount and its label.
+		backBufferGraphics.setColor(amountColor);
+		drawCenteredAt(Integer.toString(amount),
+				fontRegular.deriveFont(18f), centerX, y + 105);
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredAt("DIAMONDS", small, centerX, y + 125);
+
+		backBufferGraphics.setColor(new Color(60, 60, 60));
+		backBufferGraphics.drawLine(x + 28, y + 151, x + width - 28, y + 151);
+
+		// Action and key badge.
+		backBufferGraphics.setColor(color);
+		drawCenteredAt(action, fontRegular, centerX, y + 187);
+		int badgeWidth = smallMetrics.stringWidth(key) + 18;
+		int badgeX = centerX - badgeWidth / 2;
+		if (keyFilled) {
+			backBufferGraphics.fillRect(badgeX, y + 204, badgeWidth, 16);
+			backBufferGraphics.setColor(Color.BLACK);
+		} else {
+			backBufferGraphics.drawRect(badgeX, y + 204, badgeWidth, 16);
+		}
+		drawCenteredAt(key, small, centerX, y + 216);
+
+		// What each choice means.
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredAt(line1, small, centerX, y + 248);
+		backBufferGraphics.setColor(Color.LIGHT_GRAY);
+		drawCenteredAt(line2, small, centerX, y + 267);
+	}
+
+	/**
+	 * Draws a small gem that "turns" by squeezing its width.
+	 *
+	 * @param centerX
+	 *            Horizontal center of the gem.
+	 * @param centerY
+	 *            Vertical center of the gem.
+	 * @param turn
+	 *            Width scale, from 0.15 (edge on) to 1.0 (facing front).
+	 */
+	private void drawGem(final int centerX, final int centerY,
+			final double turn) {
+		int halfWidth = Math.max(2, (int) Math.round(11 * turn));
+		int halfCrown = Math.max(1, (int) Math.round(6 * turn));
+		int topY = centerY - 10;
+		int shoulderY = centerY - 3;
+		int bottomY = centerY + 11;
+
+		backBufferGraphics.setColor(new Color(150, 240, 255));
+		backBufferGraphics.fillPolygon(
+				new int[] { centerX - halfCrown, centerX + halfCrown,
+						centerX + halfWidth, centerX - halfWidth },
+				new int[] { topY, topY, shoulderY, shoulderY }, 4);
+		backBufferGraphics.setColor(Color.CYAN);
+		backBufferGraphics.fillPolygon(
+				new int[] { centerX - halfWidth, centerX + halfWidth, centerX },
+				new int[] { shoulderY, shoulderY, bottomY }, 3);
+		backBufferGraphics.setColor(new Color(0, 170, 200));
+		backBufferGraphics.fillPolygon(
+				new int[] { centerX, centerX + halfWidth, centerX },
+				new int[] { shoulderY, shoulderY, bottomY }, 3);
+	}
+
+	/**
+	 * Draws text centered on a given X position, in the current color.
+	 */
+	private void drawCenteredAt(final String text, final Font font,
+			final int centerX, final int baselineY) {
+		backBufferGraphics.setFont(font);
+		FontMetrics metrics = backBufferGraphics.getFontMetrics(font);
+		backBufferGraphics.drawString(text,
+				centerX - metrics.stringWidth(text) / 2, baselineY);
 	}
 
 	/**
