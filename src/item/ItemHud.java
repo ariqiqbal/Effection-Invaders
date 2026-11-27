@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import engine.UiFont;
 import item.ItemAPI.ActivationMode;
 import item.ItemAPI.EffectView;
 import item.ItemAPI.ItemInfo;
@@ -113,7 +114,7 @@ public final class ItemHud {
         track(active, nowMillis);
 
         // Slot tiles from the left.
-        Font tiny = font.deriveFont(8f);
+        Font tiny = UiFont.SMALL.font();
         int x = MARGIN, y = TOP + (HEIGHT - TILE) / 2;
         for (int i = 0; i < view.slots.size(); i++) {
             drawTile(g, view.slots.get(i), i + 1, x, y, tiny);
@@ -125,7 +126,7 @@ public final class ItemHud {
         int cy = TOP + HEIGHT / 2;
 
         // Run-long upgrades (rapid fire, bullet speed): icon + xN pinned after the slots; they never move.
-        Font small = font.deriveFont(9f);
+        Font small = UiFont.SMALL.font();
         List<EffectView> timed = new ArrayList<>();
         for (EffectView e : active) {
             if (e.stacks == null) {

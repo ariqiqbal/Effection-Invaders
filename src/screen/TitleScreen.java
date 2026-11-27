@@ -137,13 +137,13 @@ public class TitleScreen extends Screen {
 		if (this.selectionCooldown.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)
 					|| inputManager.isKeyDown(KeyEvent.VK_W)) {
-				this.selected = this.selected.previous();
+				this.selected = this.selected.previousEnabled();
 				SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				this.selectionCooldown.reset();
 			}
 			if (inputManager.isKeyDown(KeyEvent.VK_DOWN)
 					|| inputManager.isKeyDown(KeyEvent.VK_S)) {
-				this.selected = this.selected.next();
+				this.selected = this.selected.nextEnabled();
 				SoundManager.getInstance().playSfx(Sound.MENU_MOVE);
 				this.selectionCooldown.reset();
 			}

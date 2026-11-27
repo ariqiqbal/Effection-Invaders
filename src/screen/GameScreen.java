@@ -1018,6 +1018,7 @@ if (this.midBoss != null) {
 		drawManager.drawPointsEffect(this, this.pointsEffect);
 
 		// Interface.
+		drawManager.drawHudBackground(this);
 		drawManager.drawScore(this, this.score);
 		drawManager.drawLives(this, this.lives);
 		drawManager.drawLevel(this, this.level);
@@ -1025,8 +1026,8 @@ if (this.midBoss != null) {
 		// sits centred at y=14, and the coin icon is tall enough that at
 		// y=25 it climbs into the level text above it. Dropping it to its
 		// own row below clears both.
-		drawManager.drawCoinBalance(this, CurrencyManager.getInstance()
-				.getCoins(), 36);
+		drawManager.drawHudCoins(this, CurrencyManager.getInstance()
+				.getCoins());
 		drawManager.drawDiamonds(this, engine.currency.DiamondManager.getInstance()
 				.getDiamonds());
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
