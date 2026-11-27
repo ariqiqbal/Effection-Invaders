@@ -194,26 +194,16 @@ public final class DrawManager {
 
 			fileManager.loadSprite(spriteMap);
 			logger.info("Finished loading the sprites.");
-
-			// Font loading.
-			fontRegular = fileManager.loadFont(14f);
-			fontBig = fileManager.loadFont(24f);
-			logger.info("Finished loading the fonts.");
-
-		} catch (IOException e) {
+		}  catch (IOException e) {
 			logger.warning("Loading failed: " + e.getMessage());
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
-		} catch (FontFormatException e) {
-			logger.warning("Font formating failed.");
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
 		}
 
-		// Derived outside the try so it is set on the fallback path too.
-		// While it was inside, a missing font file left it null and the game
-		// died on the first frame.
-		fontSelected = fontRegular.deriveFont(17f);
+		fontRegular  = UiFont.MENU.font();
+		fontBig      = UiFont.TITLE.font();
+		fontSelected = UiFont.MENU_SELECTED.font();
+		if (GameFonts.isUsingFallback()) {
+			logger.warning("Silkscreen not found, using the fallback font.");
+		}
 	}
 
 	/**
@@ -247,10 +237,10 @@ public final class DrawManager {
 	public void initDrawing(final Screen screen) {
 
 		if (fontRegular == null) {
-			fontRegular = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+			fontRegular = GameFonts.regular(14f);
 		}
 		if (fontBig == null) {
-			fontBig = new Font(Font.MONOSPACED, Font.PLAIN, 24);
+			fontBig = GameFonts.regular(14f);
 		}
 		if (fontSelected == null) {
 			fontSelected = fontRegular;
@@ -364,12 +354,23 @@ public final class DrawManager {
 	 * @param positionY Vertical position of the baseline.
 	 * @param color     Colour of the text.
 	 */
-	public void drawRegularString(final String string, final int positionX,
-								  final int positionY, final Color color) {
+	public void drawRegularString(final String string, final int positionX, final int positionY, final Color color) {
 		backBufferGraphics.setFont(fontRegular);
-		backBufferGraphics.setColor(color);
 		backBufferGraphics.drawString(string, positionX, positionY);
+		backBufferGraphics.setColor(color);
 	}
+
+	public void drawString(final String text, final UiFont role, final Color color,
+						final int x, final int y) {
+		backBufferGraphics.setFont(role.font());
+		backBufferGraphics.setColor(color);
+		backBufferGraphics.drawString(text, x, y);
+	}
+    
+	public int stringWidth(final String text, final UiFont role) {
+		return 
+	backBufferGraphics.getFontMetrics(role.font()).stringWidth(text);
+    }
 
 	/**
 	 * Draws an empty rectangle outline.
@@ -1889,10 +1890,7 @@ public final class DrawManager {
 	 * @return Small version of the regular game font.
 	 */
 	private static Font smallFont() {
-		if (fontSmall == null
-				|| !fontSmall.getFamily().equals(fontRegular.getFamily()))
-			fontSmall = fontRegular.deriveFont(SMALL_FONT_SIZE);
-		return fontSmall;
+		return UiFont.SMALL.font();
 	}
 
 	/**
