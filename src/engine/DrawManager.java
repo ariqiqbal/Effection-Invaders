@@ -1350,6 +1350,76 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws the first-time player profile screen (WBS 3.5.7) in the style
+	 * of the title screen: the game title with a name prompt below it.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param name
+	 *            Name typed so far.
+	 * @param cursorOn
+	 *            Whether the blinking text cursor is shown.
+	 */
+	public void drawPlayerProfile(final Screen screen, final String name,
+			final boolean cursorOn) {
+		int height = screen.getHeight();
+		drawTitle(screen);
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredRegularString(screen, "WELCOME, PILOT", height / 2 - 20);
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredRegularString(screen, "ENTER YOUR NAME", height / 2 + 15);
+
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, "> " + name + (cursorOn ? "_" : " ")
+				+ " <", height / 2 + 60);
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		backBufferGraphics.drawLine(screen.getWidth() / 2 - 90,
+				height / 2 + 70, screen.getWidth() / 2 + 90, height / 2 + 70);
+
+		backBufferGraphics.setColor(Color.GRAY);
+		drawCenteredRegularString(screen, "UP TO 8 LETTERS OR NUMBERS",
+				height / 2 + 100);
+		backBufferGraphics.setColor(name.isEmpty() ? Color.DARK_GRAY
+				: Color.GREEN);
+		drawCenteredRegularString(screen, "TYPE NAME, ENTER TO START",
+				height - 30);
+	}
+
+	/**
+	 * Draws the message shown after the player confirms their name
+	 * (WBS 3.5.7): "PROFILE SAVED", or a red warning if the save failed.
+	 * AUTHORED BY: VFX TEAM (Effection)
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param name
+	 *            Name the player entered.
+	 * @param saved
+	 *            Whether the name was written to the save file.
+	 */
+	public void drawProfileSaved(final Screen screen, final String name,final boolean saved) {
+		int height = screen.getHeight();
+		drawTitle(screen);
+		backBufferGraphics.setColor(Color.WHITE);
+		drawCenteredRegularString(screen, "WELCOME,", height / 2);
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, name + "!", height / 2 + 45);
+		if (saved) {
+			backBufferGraphics.setColor(Color.GRAY);
+			drawCenteredRegularString(screen, "PROFILE SAVED", height / 2 + 90);
+		} else {
+			backBufferGraphics.setColor(Color.RED);
+			drawCenteredRegularString(screen, "NAME NOT SAVED", height / 2 + 90);
+			backBufferGraphics.setColor(Color.GRAY);
+			drawCenteredRegularString(screen, "WE WILL ASK AGAIN NEXT TIME",
+					height / 2 + 115);
+		}
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		drawCenteredRegularString(screen, "STARTING...", height - 30);
+	}
+
+	/**
 	 * Draws game results.
 	 *
 	 * @param screen

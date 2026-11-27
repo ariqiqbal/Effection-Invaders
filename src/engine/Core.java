@@ -18,6 +18,7 @@ import screen.AchievementsScreen;
 import screen.CashOutScreen;
 import screen.GameScreen;
 import screen.HighScoreScreen;
+import screen.ProfileScreen;
 import screen.ScoreScreen;
 import screen.Screen;
 import screen.SettingsScreen;
@@ -144,6 +145,13 @@ public final class Core {
 		gameSettings.add(SETTINGS_LEVEL_10);
 		
 		GameState gameState;
+		
+		// First launch: create the player profile. AUTHORED BY: VFX TEAM (Effection)
+		if (getFileManager().loadPlayerName() == null) {
+			currentScreen = new ProfileScreen(width, height, FPS);
+			LOGGER.info("Starting first-time player profile screen.");
+			frame.setScreen(currentScreen);
+		}
 
 		int returnCode = 1;
 		do {
