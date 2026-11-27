@@ -10,11 +10,11 @@ import engine.FileManager;
  * same way {@link CurrencyManager} does for coins.
  *
  * Diamonds are the secondary, premium currency. They are only earned by
- * clearing levels: clearing level N earns N diamonds, but they stay
- * "pending" (carried in {@link GameState}, not added to this balance) until
- * the player deliberately banks them on screen.CashOutScreen, or clears the
- * final level. Dying before banking forfeits them. That risk is what keeps
- * diamonds from being handed out for free just by playing.
+ * clearing levels: clearing level N earns N diamonds, which stay
+ * "pending" (carried in {@link GameState}) during the run and are added to
+ * this balance when the run ends, whether the player cashed out on
+ * screen.CashOutScreen, cleared the final level or died. Diamonds are
+ * never forfeited.
  *
  * @author GoG - Currency System
  */

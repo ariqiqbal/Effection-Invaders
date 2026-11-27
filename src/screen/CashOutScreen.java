@@ -8,10 +8,10 @@ import engine.currency.DiamondManager;
 
 /**
  * Shown right after a level is cleared, when there is a next level to play
- * and diamonds are riding on the decision. This is the "push your luck"
- * choice that keeps diamonds from being handed out for free: the player
- * either banks the diamonds earned so far and ends the run, or risks them
- * all by continuing for a bigger payout on the next level.
+ * and diamonds were earned. The player either cashes out (ends the run
+ * now) or continues for a bigger payout on the next level. Diamonds are
+ * kept either way, even if the player later dies, so the screen only
+ * shows what the player will keep and never asks them to risk it.
  *
  * Opened directly by Core between levels, not from the main menu, so it
  * needs no MenuItem entry.
@@ -91,18 +91,17 @@ public class CashOutScreen extends Screen {
 			return;
 
 		if (escapeDown) {
-			// Bank what's been earned so far, then end the run.
-			DiamondManager.getInstance().addDiamonds(this.pendingDiamonds);
+			// End the run. Core banks the diamonds when the run is settled,
+			// so they are added to the balance in exactly one place.
 			this.cashedOut = true;
 			this.isRunning = false;
-			this.logger.info("Cashed out " + this.pendingDiamonds
-					+ " diamonds, balance: "
-					+ DiamondManager.getInstance().getDiamonds());
+			this.logger.info("Cashed out with " + this.pendingDiamonds
+					+ " diamonds earned this run.");
 		} else if (spaceDown) {
-			// Push on: diamonds stay pending, at risk.
+			// Push on: the diamonds are still kept if the player dies.
 			this.isRunning = false;
 			this.logger.info("Continuing with " + this.pendingDiamonds
-					+ " diamonds at risk.");
+					+ " diamonds earned so far.");
 		}
 	}
 
@@ -123,54 +122,11 @@ public class CashOutScreen extends Screen {
 		this.drawManager.drawScreenTitle(this, "Level " + this.clearedLevel
 				+ " clear!");
 
-		this.drawManager.drawDiamondBalance(this, this.pendingDiamonds,
-				this.height / 3);
-		this.drawManager.drawCenteredRegularString(this,
-				"Diamonds at risk", this.height / 3 + 25);
-
-		this.drawManager.drawDiamondBalance(this, DiamondManager
-				.getInstance().getDiamonds(), this.height / 2);
-		this.drawManager.drawCenteredRegularString(this,
-				"Diamonds banked", this.height / 2 + 25);
-
-		drawRiskPreview(this.height / 2 + 60);
-
-		this.drawManager.drawKeyHints(this, "esc cash out and end run");
-		this.drawManager.drawCenteredRegularString(this, "space risk it on level "
-				+ this.nextLevel, this.height - 45);
+		this.drawManager.drawCashOutChoice(this, this.pendingDiamonds,
+				DiamondManager.getInstance().getDiamonds(), this.nextLevel);
 
 		this.drawManager.completeDrawing(this);
 	}
 
-	/**
-	 * Diamonds the player would have pending after clearing the next level:
-	 * what is at risk now plus that level's reward (level N is worth N).
-	 *
-	 * @return Pending diamonds if the next level is cleared.
-	 */
-	final int diamondsIfNextLevelCleared() {
-		return (int) Math.min(Integer.MAX_VALUE,
-				(long) this.pendingDiamonds + this.nextLevel);
-	}
-
-	/**
-	 * Draws what continuing is worth, so the player can weigh the risk
-	 * instead of guessing: the next level's reward, the pending total if
-	 * they clear it, and whether that total would be banked automatically
-	 * because it is the final level.
-	 *
-	 * @param positionY
-	 *            Y position of the first line.
-	 */
-	private void drawRiskPreview(final int positionY) {
-		this.drawManager.drawCenteredRegularString(this, "Clear level "
-				+ this.nextLevel + " for +" + this.nextLevel + " diamonds",
-				positionY);
-		String outcome = this.nextLevel >= Core.getNumLevels()
-				? "Final level: " + diamondsIfNextLevelCleared()
-						+ " banked automatically"
-				: "Then " + diamondsIfNextLevelCleared() + " at risk";
-		this.drawManager.drawCenteredRegularString(this, outcome,
-				positionY + 20);
-	}
+	
 }

@@ -47,6 +47,8 @@ public class ScoreScreen extends Screen {
 	private int nameCharSelected;
 	/** Time between changes in user selection. */
 	private Cooldown selectionCooldown;
+	/** Diamonds the player earned and kept this run. */
+	private final int diamondsKept;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -60,10 +62,18 @@ public class ScoreScreen extends Screen {
 	 * @param gameState
 	 *            Current game state.
 	 */
+
 	public ScoreScreen(final int width, final int height, final int fps,
 			final GameState gameState) {
+		this(width, height, fps, gameState, 0);
+	}
+
+	public ScoreScreen(final int width, final int height, final int fps,
+			final GameState gameState, final int diamondsKept) {
 		super(width, height, fps);
 
+		this.diamondsKept = Math.max(0, diamondsKept);
+	
 		this.score = gameState.getScore();
 		this.livesRemaining = gameState.getLivesRemaining();
 		this.bulletsShot = gameState.getBulletsShot();
@@ -180,6 +190,8 @@ public class ScoreScreen extends Screen {
 		drawManager.drawResults(this, this.score, this.livesRemaining,
 				this.shipsDestroyed, (float) this.shipsDestroyed
 						/ this.bulletsShot, this.isNewRecord);
+		drawManager.drawDiamondsKept(this, this.diamondsKept,
+				this.isNewRecord);
 
 		if (this.isNewRecord)
 			drawManager.drawNameInput(this, this.name, this.nameCharSelected);

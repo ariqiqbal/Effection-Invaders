@@ -269,8 +269,8 @@ public class GameScreen extends Screen {
 	private PointsEffect pointsEffect;
 	/** Ghost Trail ship effect, null if not bought or switched off. AUTHORED BY: VFX TEAM (Effection) */
 	private GhostTrail ghostTrail;
-	/** Diamonds earned this run but not yet cashed out; lost on death,
-	 * banked into DiamondManager only when the player cashes out. */
+	/** Diamonds earned this run but not yet banked; added to
+	 * DiamondManager when the run ends, even if the player dies. */
 	private int pendingDiamonds;
 	/** Levels cleared alive during the current run. */
 	private int levelsCompletedRun;
@@ -605,7 +605,7 @@ public class GameScreen extends Screen {
 			this.screenFinishedCooldown.reset();
 
 			// Level cleared alive: level N is worth N diamonds, kept pending
-			// until cashed out (see engine.DiamondManager), and coins still
+			// until the run ends (see engine.DiamondManager), and coins still
 			// falling are collected so the last kills' drops aren't lost.
 			if (isCleared && this.lives > 0) {
 				this.levelsCompletedRun++; // Sharpshooter tiers (Mantis)
